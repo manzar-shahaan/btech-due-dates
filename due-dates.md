@@ -59,15 +59,18 @@ Last updated: Oct 14, 2026
 | Oct 26–30 | — | *Reading week (all courses, no classes)* | — | ESC4300 no class Oct 26; CST3105/3107 wk8 Oct 27; CST3106 wk8 Oct 28; MGT4701 wk8 Oct 29 |
 | Sun Nov 1 | CST3106 | Lab 7 – Migrate dice module to client-server | 1% | |
 | Sun Nov 1 | CST3106 | **Assignment 1 – Yatzy Game JS** | 10% | |
+| Mon Nov 2 | CST3104 | Lab 5 | 3.125% | Labs due Mondays; none Oct 19 (midterm) or Oct 26 (reading week) |
 | Sun Nov 8, 12:00 PM | CST3105 | **Assignment 1** | 15% | Shifted from outline's week 6; group submission per Brightspace |
 | Sun Nov 8 | CST3106 | Lab 8 – Creating a Dice Rolling Animation with jQuery | 2% | Older course docs call this "JSON-based Web API" |
-| ~Nov 2–27 | CST3104 | Labs 5–8 (4 × 3.125%) + Quizzes 7–8 (2 × 1.875%) | 16.25% total | (est.) Outline weeks 9–12; exact dates not yet posted |
+| Mon Nov 9 | CST3104 | Lab 6 | 3.125% | |
 | Tue Nov 10 | CST3107 | Quiz 2 (in-class) | 5% | Week 10 |
 | **Sun Nov 15** | CST3106 | **Assignment 2 – Yatzy w/ Node.js & Express** | 12% | |
 | **Sun Nov 15** | CST3106 | **PD#2 – Portfolio + Yatzy Game** | 7% | |
 | Sun Nov 15 | CST3106 | Lab 9 – Test Postman collection | 2% | |
 | Sun Nov 15 | ESC4300 | Quiz 3 (Ch. 12) | 5% | Window Nov 9–15 |
+| Mon Nov 16 | CST3104 | Lab 7 | 3.125% | |
 | Sun Nov 22 | CST3106 | Lab 10 – Hospital Triage design system | 2% | |
+| Mon Nov 23 | CST3104 | Lab 8 | 3.125% | |
 | Tue Nov 24 | CST3107 | Quiz 3 (in-class) | 5% | Week 12 |
 | ~Tue Nov 24 (wk 12) | CST3105 | **Assignment 2** | 15% | (est.) Not yet on Brightspace |
 | Thu Nov 26 | MGT4701 | **Group Assignment 2** | 10% | Not yet on Brightspace |
@@ -94,6 +97,7 @@ Last updated: Oct 14, 2026
 | Course | Item | Wt | Notes |
 |---|---|---|---|
 | CST3104 | Final Exam | 25% | Exam period, no date yet (not in CSI schedule) |
+| CST3104 | Quizzes 7–8 (2 × 1.875%) | 3.75% total | Due dates not yet posted — excluded from the calendar feed until confirmed |
 | ESC4300 | Final Exam | 25% | Exam period, no date yet (not in CSI schedule) |
 | MGT4701 | Final Exam | 35% | "TBD" (week 15) per CSI |
 | CST3107 | Attendance | 3% | Ongoing all term |
