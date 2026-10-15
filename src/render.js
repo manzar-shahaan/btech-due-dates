@@ -776,7 +776,7 @@ const SCRIPT = `
 const MODAL = `
 <div class="modal-backdrop" id="cal-modal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cal-title">
-    <h2 id="cal-title">Add to your calendar</h2>
+    <h2 id="cal-title">Subscribe to your calendar</h2>
     <p class="muted">One subscription covers every dated upcoming item (est. dates marked) <strong>for the courses currently enabled on this page</strong> — use the course filter chips to include only what you're taking. It refreshes automatically whenever this page updates — no re-adding needed.</p>
     <h3>Apple Calendar &amp; Outlook — subscribe once</h3>
     <p><strong>Apple Calendar</strong>: File → New Calendar Subscription → paste this URL.<br>
@@ -865,7 +865,7 @@ ${eventsTable(pastAll, today, term, false, "past-body")}
   </div>
   <div class="chips" id="top-actions">
     <button class="chip link" type="button" id="theme-menu-btn" title="Theme options" aria-label="Theme options">🎨</button>
-    <button class="btn primary" type="button" data-open-cal>📅 Add to calendar</button>
+    <button class="btn primary" type="button" data-open-cal>📅 Subscribe to calendar</button>
     <a class="chip link" href="/raw">Raw markdown</a>
     <a class="chip link" href="${SOURCE_URL}">Source on GitHub</a>
     <div class="theme-menu" id="theme-menu" hidden>

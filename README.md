@@ -67,7 +67,7 @@ wanted).
 |---|---|
 | `/` | Dynamic HTML page: upcoming items first with countdowns ("today" = Ottawa time), stale rows auto-filed into a collapsed Past section, per-event ⋮ report menus. **Course filter chips + sorting (date / course / weight) below the header** — the choice is remembered per browser (localStorage) and mirrored in the URL (`?courses=…`) so filtered views can be shared; a floating notice shows while courses are excluded. **🎨 Theme menu** in the top bar: a single light/dark toggle (sun/moon icon + word; follows the system scheme until you pick one — a small “Follow system” link re-enables that) plus accent colour via swatches or a custom hex code input (persisted per browser via localStorage — no cookies). **Sticky column headers** at every width (tables wider than the viewport widen the page, which pans horizontally; a per-table scroller would trap sticky) |
 | `/raw` (alias `/due-dates.md`) | Raw markdown |
-| `/calendar.ics` | iCalendar feed of every dated upcoming item — subscribe (Apple/Outlook) or import (Google). `?id=<event>` returns a single event; `?download=1` forces a download; **`?courses=CST3104,MGT4701` whitelists courses** (for classmates not taking every course — the "Add to calendar" modal builds this URL automatically from the page's enabled courses) |
+| `/calendar.ics` | iCalendar feed of every dated upcoming item — subscribe (Apple/Outlook) or import (Google). `?id=<event>` returns a single event; `?download=1` forces a download; **`?courses=CST3104,MGT4701` whitelists courses** (for classmates not taking every course — the "Subscribe to calendar" modal builds this URL automatically from the page's enabled courses) |
 | `/health` | Plain-text liveness check (`ok`) |
 
 Content is bundled **at deploy time**, so there is no runtime dependency on
@@ -76,7 +76,7 @@ it takes to update the live site.
 
 ### Calendar integration (subscription)
 
-- The **"Add to calendar" button** opens a modal with the `webcal://` URL to
+- The **"Subscribe to calendar" button** opens a modal with the `webcal://` URL to
   paste **once**: Apple Calendar (File → New Calendar Subscription) and
   Outlook (Add calendar → Subscribe from web). Subscribers' apps re-fetch the
   feed on their own schedule — every push flows into their calendar with no
