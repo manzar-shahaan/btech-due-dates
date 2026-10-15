@@ -1,6 +1,12 @@
 // Dynamic HTML rendering. The page is rebuilt per request around "today"
 // (America/Toronto): upcoming items first with countdowns, stale rows folded
 // into a collapsed Past section, and calendar buttons everywhere.
+//
+// Course filtering + sorting run client-side: every event row carries
+// data-course / data-orig / data-wt attributes, and inline JS toggles
+// visibility and re-orders rows. The calendar modal builds its subscribe
+// URLs from whatever courses are currently enabled, matching the
+// server-side ?courses= whitelist on /calendar.ics.
 
 import { marked } from "marked";
 import { eventUid } from "./ics.js";
@@ -30,6 +36,13 @@ function mdBlock(lines) {
 /** Wrap markdown tables for horizontal scrolling on narrow screens. */
 function wrapTables(html) {
   return html.replace(/<table>/g, '<div class="table-wrap"><table>').replace(/<\/table>/g, "</table></div>");
+}
+
+/** Tag markdown-rendered table rows whose first cell is a course code, so the
+ *  client-side course filter hides them in the prose tables too (Unscheduled,
+ *  weight audit). */
+function tagCourseRows(html) {
+  return html.replace(/<tr>\s*<td>([A-Z]{3}\d{4})<\/td>/g, '<tr data-course="$1"><td>$1</td>');
 }
 
 function daysUntil(iso, today) {
@@ -70,9 +83,15 @@ function eventKey(e) {
   return e.parsed ? e.parsed.start + (e.parsed.time || "00:00") : "9999-99-99";
 }
 
+/** First number in the Wt cell — the sort key for "by weight". "" if none. */
+function weightValue(wt) {
+  const m = String(wt || "").match(/\d+(?:\.\d+)?/);
+  return m ? m[0] : "";
+}
+
 function eventRows(events, today, term, withCountdown) {
   return events
-    .map((e) => {
+    .map((e, i) => {
       const p = e.parsed;
       const days = p ? daysUntil(p.start, today) : null;
       const urgent = withCountdown && days !== null && days <= 3;
@@ -80,7 +99,7 @@ function eventRows(events, today, term, withCountdown) {
         ? `<a class="ical" href="/calendar.ics?id=${eventUid(e, term)}" title="Add this event to your calendar">📅</a>`
         : "";
       return [
-        `<tr${urgent ? ' class="urgent"' : ""}>`,
+        `<tr${urgent ? ' class="urgent"' : ""} data-course="${escapeHtml(e.course)}" data-orig="${i}" data-wt="${weightValue(e.wt)}">`,
         `<td class="due">${inlineMd(e.due)}${withCountdown && p ? countdown(days) : ""}</td>`,
         `<td class="course">${e.course === "—" ? '<span class="muted">—</span>' : escapeHtml(e.course)}</td>`,
         `<td>${inlineMd(e.item)}</td>`,
@@ -95,8 +114,8 @@ function eventRows(events, today, term, withCountdown) {
 
 const TABLE_HEAD = "<thead><tr><th>Due</th><th>Course</th><th>Item</th><th>Wt</th><th>Notes</th><th></th></tr></thead>";
 
-function eventsTable(events, today, term, withCountdown) {
-  return `<div class="table-wrap"><table>${TABLE_HEAD}<tbody>${eventRows(events, today, term, withCountdown)}</tbody></table></div>`;
+function eventsTable(events, today, term, withCountdown, tbodyId) {
+  return `<div class="table-wrap"><table>${TABLE_HEAD}<tbody id="${tbodyId}">${eventRows(events, today, term, withCountdown)}</tbody></table></div>`;
 }
 
 /** Split rows into upcoming/past by date. Rows past in the file but whose
@@ -151,11 +170,30 @@ body {
 .btn {
   border: 1px solid var(--border); background: var(--panel); color: var(--text);
   padding: 5px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
-  cursor: pointer; text-decoration: none; display: inline-block;
+  cursor: pointer; text-decoration: none; display: inline-block; font-family: inherit;
 }
 .btn:hover { border-color: var(--accent); color: var(--accent); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn.primary:hover { filter: brightness(1.08); color: #fff; }
+.filters {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin: 14px 0 0; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--panel);
+}
+.flabel { color: var(--muted); font-size: 13px; font-weight: 600; }
+.fchip {
+  border: 1px solid var(--border); background: var(--panel); color: var(--muted);
+  padding: 3px 12px; border-radius: 999px; font-size: 13px; cursor: pointer;
+  font-family: inherit; opacity: 0.6;
+}
+.fchip.on {
+  border-color: var(--accent); color: var(--accent); font-weight: 700;
+  background: var(--th-bg); opacity: 1;
+}
+#sortsel {
+  border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  border-radius: 8px; padding: 4px 8px; font-size: 13px; font-family: inherit;
+}
 h1 { font-size: 1.55rem; line-height: 1.3; margin: 1.1em 0 0.6em; }
 h2 { font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin: 2.2em 0 0.8em; }
 h3 { font-size: 1.02rem; margin: 1.6em 0 0.5em; }
@@ -212,50 +250,197 @@ details.past[open] summary { border-bottom: 1px solid var(--border); margin-bott
 footer { color: var(--muted); font-size: 0.85rem; margin-top: 3em; }
 `;
 
+// Client-side filtering + sorting. Plain ES5, string concatenation only —
+// this is embedded in a template literal, so no backticks / ${} in here.
 const SCRIPT = `
 (function () {
   var modal = document.getElementById("cal-modal");
-  if (!modal) return;
+  var chips = [].slice.call(document.querySelectorAll("[data-fcourse]"));
+  var sortSel = document.getElementById("sortsel");
+  var countEl = document.getElementById("upcoming-count");
+  var pastCountEl = document.getElementById("past-count");
+  var emptyEl = document.getElementById("filter-empty");
+  var LS_KEY = "btdd-filters-v1";
+  var ALL = [];
+  var enabled = {};
+  chips.forEach(function (c) {
+    var code = c.getAttribute("data-fcourse");
+    ALL.push(code);
+    enabled[code] = true;
+  });
+
+  function normalizeList(raw) {
+    if (raw === null || raw === undefined) return null;
+    var list = String(raw).split(",").map(function (s) {
+      return s.trim().toUpperCase();
+    }).filter(function (s) {
+      return s && ALL.indexOf(s) >= 0;
+    });
+    return list.length ? list : null;
+  }
+
+  function restoreState() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch (e) { saved = null; }
+    var list = null;
+    try { list = normalizeList(new URL(location.href).searchParams.get("courses")); } catch (e) {}
+    if (!list && saved && saved.courses) list = normalizeList(saved.courses.join(","));
+    if (list && list.length < ALL.length) {
+      ALL.forEach(function (c) { enabled[c] = list.indexOf(c) >= 0; });
+    }
+    var sort = saved && saved.sort ? saved.sort : "date";
+    var opt = sortSel.querySelector('option[value="' + sort + '"]');
+    if (opt) sortSel.value = sort;
+  }
+
+  function enabledList() {
+    return ALL.filter(function (c) { return enabled[c]; });
+  }
+
+  function visibleRows(tbody) {
+    var n = 0;
+    [].slice.call(tbody.rows).forEach(function (tr) {
+      if (tr.style.display !== "none") n++;
+    });
+    return n;
+  }
+
+  function applyFilters() {
+    chips.forEach(function (c) {
+      c.classList.toggle("on", !!enabled[c.getAttribute("data-fcourse")]);
+    });
+    [].slice.call(document.querySelectorAll("tr[data-course]")).forEach(function (tr) {
+      var c = tr.getAttribute("data-course");
+      tr.style.display = c === "—" || enabled[c] ? "" : "none";
+    });
+    var up = document.getElementById("upcoming-body");
+    var vis = up ? visibleRows(up) : 0;
+    if (countEl) countEl.textContent = vis + (vis === 1 ? " item" : " items");
+    if (emptyEl) emptyEl.hidden = vis !== 0;
+    var pb = document.getElementById("past-body");
+    if (pastCountEl && pb) pastCountEl.textContent = String(visibleRows(pb));
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ courses: enabledList(), sort: sortSel.value })); } catch (e) {}
+    var on = enabledList();
+    // Manual query string so commas stay readable (URLSearchParams would %2C them).
+    var qs = on.length && on.length !== ALL.length ? "?courses=" + on.join(",") : "";
+    history.replaceState(null, "", location.pathname + qs + location.hash);
+  }
+
+  function rowWeight(tr) {
+    var w = parseFloat(tr.getAttribute("data-wt"));
+    return isFinite(w) ? w : -1;
+  }
+
+  function sortTables() {
+    var mode = sortSel.value;
+    ["upcoming-body", "past-body"].forEach(function (id) {
+      var tbody = document.getElementById(id);
+      if (!tbody) return;
+      var rows = [].slice.call(tbody.rows);
+      rows.sort(function (a, b) {
+        var oa = Number(a.getAttribute("data-orig"));
+        var ob = Number(b.getAttribute("data-orig"));
+        if (mode === "course") {
+          var ca = a.getAttribute("data-course") || "";
+          var cb = b.getAttribute("data-course") || "";
+          if (ca !== cb) return ca < cb ? -1 : 1;
+          return oa - ob;
+        }
+        if (mode === "weight-hi" || mode === "weight-lo") {
+          var d = rowWeight(b) - rowWeight(a);
+          if (mode === "weight-lo") d = -d;
+          if (d !== 0) return d;
+          return oa - ob;
+        }
+        return oa - ob;
+      });
+      rows.forEach(function (tr) { tbody.appendChild(tr); });
+    });
+  }
+
+  function onChange() {
+    applyFilters();
+    sortTables();
+  }
+
+  function feedQuery() {
+    var on = enabledList();
+    if (!on.length || on.length === ALL.length) return "";
+    return "?courses=" + on.join(",");
+  }
+
   function openModal() {
-    var icsHttps = "https://" + location.host + "/calendar.ics";
-    document.getElementById("cal-url").textContent = "webcal://" + location.host + "/calendar.ics";
+    var query = feedQuery();
+    var icsHttps = "https://" + location.host + "/calendar.ics" + query;
+    document.getElementById("cal-url").textContent = "webcal://" + location.host + "/calendar.ics" + query;
     document.getElementById("cal-url-https").textContent = icsHttps;
-    document.getElementById("gcal-add").href = "https://calendar.google.com/calendar/render?cid=" + encodeURIComponent(icsHttps);
+    var g = document.getElementById("gcal-add");
+    if (g) g.href = "https://calendar.google.com/calendar/render?cid=" + encodeURIComponent(icsHttps);
+    var dl = document.getElementById("ics-download");
+    if (dl) dl.href = "/calendar.ics" + (query ? query + "&download=1" : "?download=1");
     modal.hidden = false;
   }
+
   function closeModal() { modal.hidden = true; }
-  document.querySelectorAll("[data-open-cal]").forEach(function (b) {
-    b.addEventListener("click", openModal);
-  });
-  document.querySelectorAll("[data-close-modal]").forEach(function (b) {
-    b.addEventListener("click", closeModal);
-  });
-  modal.addEventListener("click", function (e) {
-    if (e.target === modal) closeModal();
-  });
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && !modal.hidden) closeModal();
-  });
-  document.querySelectorAll("[data-copy]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var el = document.getElementById(b.getAttribute("data-copy"));
-      var text = el.textContent;
-      function done() {
-        b.textContent = "Copied ✓";
-        setTimeout(function () { b.textContent = "Copy"; }, 1600);
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done, done);
-      } else {
-        var range = document.createRange();
-        range.selectNodeContents(el);
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-        done();
-      }
+
+  if (modal) {
+    document.querySelectorAll("[data-open-cal]").forEach(function (b) {
+      b.addEventListener("click", openModal);
+    });
+    document.querySelectorAll("[data-close-modal]").forEach(function (b) {
+      b.addEventListener("click", closeModal);
+    });
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !modal.hidden) closeModal();
+    });
+    document.querySelectorAll("[data-copy]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var el = document.getElementById(b.getAttribute("data-copy"));
+        var text = el.textContent;
+        function done() {
+          b.textContent = "Copied ✓";
+          setTimeout(function () { b.textContent = "Copy"; }, 1600);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, done);
+        } else {
+          var range = document.createRange();
+          range.selectNodeContents(el);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          done();
+        }
+      });
+    });
+  }
+
+  chips.forEach(function (c) {
+    c.addEventListener("click", function () {
+      var code = c.getAttribute("data-fcourse");
+      enabled[code] = !enabled[code];
+      onChange();
     });
   });
+  document.querySelectorAll("[data-fall]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      ALL.forEach(function (c) { enabled[c] = true; });
+      onChange();
+    });
+  });
+  document.querySelectorAll("[data-fnone]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      ALL.forEach(function (c) { enabled[c] = false; });
+      onChange();
+    });
+  });
+  if (sortSel) sortSel.addEventListener("change", onChange);
+
+  restoreState();
+  onChange();
 })();
 `;
 
@@ -263,7 +448,7 @@ const MODAL = `
 <div class="modal-backdrop" id="cal-modal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cal-title">
     <h2 id="cal-title">Add to your calendar</h2>
-    <p class="muted">One subscription covers every dated upcoming item (est. dates marked). It refreshes automatically whenever this page updates — no re-adding needed.</p>
+    <p class="muted">One subscription covers every dated upcoming item (est. dates marked) <strong>for the courses currently enabled on this page</strong> — use the course filter chips to include only what you're taking. It refreshes automatically whenever this page updates — no re-adding needed.</p>
     <h3>Apple Calendar &amp; Outlook — subscribe once</h3>
     <p><strong>Apple Calendar</strong>: File → New Calendar Subscription → paste this URL.<br>
     <strong>Outlook (web)</strong>: Add calendar → Subscribe from web → same URL.</p>
@@ -277,7 +462,7 @@ const MODAL = `
     <p class="hint">One click while logged in to Google. Or manually: Google Calendar (web) → Settings → Add calendar → <strong>From URL</strong> → paste the <strong>https</strong> link (Google rejects <code>webcal://</code>) → Add. It shows up under "Other calendars" and refreshes automatically — Google re-checks the feed roughly every 12–24 hours. (Subscribing works on the web version; the mobile app then displays it.)</p>
     <h3>Prefer an editable local copy?</h3>
     <p class="hint">Download and import (Settings → Import &amp; export) — an imported calendar is a static snapshot that won't auto-update.</p>
-    <a class="btn" href="/calendar.ics?download=1">Download .ics (upcoming only)</a>
+    <a class="btn" id="ics-download" href="/calendar.ics?download=1">Download .ics (upcoming only)</a>
     <div class="modal-actions">
       <button class="btn" type="button" data-close-modal>Close</button>
     </div>
@@ -290,22 +475,43 @@ export function pageHtml({ meta, parsed, today }) {
   const upcomingAll = upcoming.dated.concat(upcoming.undated);
   const pastAll = past.dated.concat(past.undated);
 
+  // Course chips: semester.yml order first, then any course only seen in events.
+  const courseSet = new Set((meta.courses || []).filter(Boolean));
+  for (const e of [...parsed.past, ...parsed.upcoming]) {
+    if (e.course && e.course !== "—") courseSet.add(e.course);
+  }
+  const courses = [...courseSet];
+  const filterBar = `<div class="filters" id="filters">
+<span class="flabel">Show</span>
+${courses.map((c) => `<button class="fchip on" type="button" data-fcourse="${escapeHtml(c)}" title="Toggle ${escapeHtml(c)}">${escapeHtml(c)}</button>`).join("\n")}
+<button class="btn" type="button" data-fall>All</button>
+<button class="btn" type="button" data-fnone>None</button>
+<span class="flabel">Sort</span>
+<select id="sortsel" aria-label="Sort order">
+<option value="date">By date</option>
+<option value="course">By course</option>
+<option value="weight-hi">Weight: high → low</option>
+<option value="weight-lo">Weight: low → high</option>
+</select>
+</div>`;
+
   const upcomingHtml = `<section id="upcoming">
-<h2>Upcoming <span class="chip">${upcomingAll.length} item${upcomingAll.length === 1 ? "" : "s"}</span></h2>
+<h2>Upcoming <span class="chip" id="upcoming-count">${upcomingAll.length} item${upcomingAll.length === 1 ? "" : "s"}</span></h2>
 ${
   upcomingAll.length
-    ? eventsTable(upcomingAll, today, term, true)
+    ? eventsTable(upcomingAll, today, term, true, "upcoming-body")
     : '<p class="muted">Nothing dated ahead — check "Unscheduled / Ongoing" below.</p>'
 }
+<p class="muted" id="filter-empty" hidden>No items match the current filters — enable a course above.</p>
 </section>`;
 
   const pastHtml = `<details class="past">
-<summary>Past deadlines (${pastAll.length})</summary>
-${eventsTable(pastAll, today, term, false)}
+<summary>Past deadlines (<span id="past-count">${pastAll.length}</span>)</summary>
+${eventsTable(pastAll, today, term, false, "past-body")}
 </details>`;
 
   const othersHtml = parsed.others
-    .map((s) => `<section><h2>${escapeHtml(s.title)}</h2>${wrapTables(mdBlock(s.lines))}</section>`)
+    .map((s) => `<section><h2>${escapeHtml(s.title)}</h2>${tagCourseRows(wrapTables(mdBlock(s.lines)))}</section>`)
     .join("\n");
 
   const title = escapeHtml(meta.title || "Due Dates");
@@ -334,6 +540,7 @@ ${eventsTable(pastAll, today, term, false)}
     <a class="chip link" href="${SOURCE_URL}">Source on GitHub</a>
   </div>
 </div>
+${filterBar}
 ${wrapTables(mdBlock(parsed.intro))}
 ${upcomingHtml}
 ${pastHtml}

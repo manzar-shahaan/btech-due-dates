@@ -62,6 +62,21 @@ export default {
         const today = todayInToronto();
         const dated = [...parsed.past, ...parsed.upcoming].filter((e) => e.parsed);
 
+        // Optional whitelist: /calendar.ics?courses=CST3104,MGT4701 — for
+        // classmates not taking every course. Unknown codes are ignored;
+        // a param that selects nothing falls back to all courses.
+        const coursesParam = url.searchParams.get("courses");
+        let coursesFilter = null;
+        if (coursesParam) {
+          const known = new Set(dated.map((e) => e.course).filter((c) => c && c !== "—"));
+          const valid = coursesParam
+            .split(",")
+            .map((s) => s.trim().toUpperCase())
+            .filter(Boolean)
+            .filter((c) => known.has(c));
+          if (valid.length > 0) coursesFilter = new Set(valid);
+        }
+
         let events;
         if (id) {
           events = dated.filter((e) => eventUid(e, meta.term) === id);
@@ -75,6 +90,7 @@ export default {
           // Feed: today and later — subscribers' calendars stay clean
           // without needing manual cleanup at semester rollover.
           events = dated.filter((e) => e.parsed.start >= today);
+          if (coursesFilter) events = events.filter((e) => coursesFilter.has(e.course));
         }
 
         // ETag covers everything except the per-request DTSTAMP, so the

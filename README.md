@@ -65,9 +65,9 @@ wanted).
 
 | Route | Response |
 |---|---|
-| `/` | Dynamic HTML page: upcoming items first with countdowns ("today" = Ottawa time), stale rows auto-filed into a collapsed Past section, calendar buttons |
+| `/` | Dynamic HTML page: upcoming items first with countdowns ("today" = Ottawa time), stale rows auto-filed into a collapsed Past section, calendar buttons. **Course filter chips + sorting (date / course / weight) below the header** — the choice is remembered per browser (localStorage) and mirrored in the URL (`?courses=…`) so filtered views can be shared |
 | `/raw` (alias `/due-dates.md`) | Raw markdown |
-| `/calendar.ics` | iCalendar feed of every dated upcoming item — subscribe (Apple/Outlook) or import (Google). `?id=<event>` returns a single event; `?download=1` forces a download |
+| `/calendar.ics` | iCalendar feed of every dated upcoming item — subscribe (Apple/Outlook) or import (Google). `?id=<event>` returns a single event; `?download=1` forces a download; **`?courses=CST3104,MGT4701` whitelists courses** (for classmates not taking every course — the "Add to calendar" modal builds this URL automatically from the page's enabled courses) |
 | `/health` | Plain-text liveness check (`ok`) |
 
 Content is bundled **at deploy time**, so there is no runtime dependency on
@@ -93,6 +93,10 @@ it takes to update the live site.
   keys updates on UID), `TRANSP:TRANSPARENT` per event, all-day `VALUE=DATE`
   for date-only entries, and ETag/304 support for conditional re-fetches.
 - Each upcoming row has a **📅 button** that downloads just that event.
+- **Course-filtered feeds**: `?courses=` accepts a comma-separated whitelist
+  (case-insensitive; unknown codes are ignored; an empty/invalid param means
+  all courses). The ETag varies per filter set, so conditional fetches still
+  304 correctly per URL.
 - Estimated rows (leading `~`) are prefixed `(est.)` in the feed. Date-only
   entries become all-day events; timed entries use `America/Toronto`.
 - The feed only ever contains today-and-future items, so subscribed calendars
