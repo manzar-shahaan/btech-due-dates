@@ -279,8 +279,35 @@ details.past[open] summary { border-bottom: 1px solid var(--border); margin-bott
 .copyrow { display: flex; gap: 8px; align-items: stretch; margin: 0.6em 0; }
 .copyrow code { flex: 1; overflow-wrap: anywhere; font-size: 12px; padding: 6px 8px; user-select: all; }
 .hint { color: var(--muted); font-size: 0.85rem; }
+.modal h2 { margin-top: 0.2em; }
 .modal-actions { margin-top: 14px; display: flex; justify-content: flex-end; gap: 8px; }
 footer { color: var(--muted); font-size: 0.85rem; margin-top: 3em; }
+/* Mobile: bottom-sheet modal, tighter tables, safe-area-aware floats. */
+@media (max-width: 600px) {
+  body { font-size: 15px; }
+  .wrap { padding: 12px 14px 48px; }
+  table { font-size: 0.85em; }
+  th, td { padding: 6px 8px; }
+  .count { display: block; margin: 2px 0 0; width: fit-content; }
+  .modal-backdrop { padding: 0; align-items: flex-end; }
+  .modal {
+    max-width: none; width: 100%;
+    border-radius: 14px 14px 0 0;
+    border-left: none; border-right: none; border-bottom: none;
+    max-height: 85vh;
+    max-height: 85dvh;
+    padding: 16px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  .modal .copyrow code { font-size: 11px; }
+  #gcal-add, #ics-download, .modal-actions .btn {
+    display: block; width: 100%; text-align: center; padding: 10px 14px;
+  }
+  .modal-actions { margin-top: 12px; }
+  .filter-note {
+    bottom: max(10px, env(safe-area-inset-bottom, 0px));
+    padding: 6px 8px 6px 12px;
+  }
+}
 `;
 
 // Client-side filtering + sorting. Plain ES5, string concatenation only —
