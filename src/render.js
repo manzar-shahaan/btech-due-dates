@@ -225,9 +225,23 @@ button.chip { cursor: pointer; font-family: inherit; }
 .filter-note {
   position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
   display: flex; align-items: center; gap: 10px; z-index: 8;
-  background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
+  background: var(--panel); border: 1px solid var(--accent); border-radius: 999px;
   padding: 6px 8px 6px 14px; font-size: 13px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   color: var(--text); max-width: calc(100vw - 24px);
+  animation: pill-glow 2.6s ease-in-out infinite;
+}
+@keyframes pill-glow {
+  0%, 100% {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+    border-color: var(--accent);
+  }
+  50% {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18), 0 0 12px 1px var(--accent);
+    border-color: var(--accent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .filter-note { animation: none; }
 }
 h1 { font-size: 1.55rem; line-height: 1.3; margin: 1.1em 0 0.6em; }
 h2 { font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin: 2.2em 0 0.8em; }
@@ -709,7 +723,7 @@ ${eventsTable(pastAll, today, term, false, "past-body")}
     ${updated ? `<span class="chip">Updated ${updated}</span>` : ""}
   </div>
   <div class="chips" id="top-actions">
-    <button class="chip link" type="button" id="theme-menu-btn" title="Theme options">🎨 Theme</button>
+    <button class="chip link" type="button" id="theme-menu-btn" title="Theme options" aria-label="Theme options">🎨</button>
     <button class="btn primary" type="button" data-open-cal>📅 Add to calendar</button>
     <a class="chip link" href="/raw">Raw markdown</a>
     <a class="chip link" href="${SOURCE_URL}">Source on GitHub</a>
