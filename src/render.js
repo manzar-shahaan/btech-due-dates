@@ -893,7 +893,7 @@ ${upcomingHtml}
 ${pastHtml}
 ${wrapTables(mdBlock(parsed.preambleRest))}
 ${othersHtml}
-<footer>This is a public copy of my due-date calendar — if you see any errors, please let me know <a href="https://discord.com/users/756577904086745099" target="_blank" rel="noopener" title="Message me on Discord">→</a> Brightspace and official college communications are always authoritative. Dates are Ottawa time (America/Toronto); entries without a time are all-day. Served by a Cloudflare Worker.</footer>
+<footer>Not liable for loss of grades or missed deadlines. Dates are Ottawa time (America/Toronto); entries without a time are all-day. Served by a Cloudflare Worker.</footer>
 </div>
 <div class="report-menu" id="report-menu" hidden>
   <a id="report-link" href="https://discord.com/users/756577904086745099" target="_blank" rel="noopener">⚠️ Report incorrect</a>

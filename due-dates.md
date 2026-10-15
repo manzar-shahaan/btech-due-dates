@@ -1,6 +1,6 @@
 # Due Dates — 2026 Fall (All Courses)
 
-> **Unofficial study aid, maintained by a classmate.** Dates are cross-checked against course outlines and Brightspace where possible, but **Brightspace and official college communications are always authoritative**. Not affiliated with or endorsed by Algonquin College.
+> **This is a public copy of my due-date calendar.** If you see any errors, please let me know [→](https://discord.com/users/756577904086745099). Dates are cross-checked against course outlines and Brightspace where possible, but **Brightspace and official college communications are always authoritative**. Not affiliated with or endorsed by Algonquin College.
 
 Last updated: Oct 14, 2026
 
