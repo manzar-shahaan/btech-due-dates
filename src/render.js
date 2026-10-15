@@ -180,6 +180,16 @@ body {
 }
 .chip.link { color: var(--link); text-decoration: none; }
 .chip.link:hover { text-decoration: underline; }
+button.chip { cursor: pointer; font-family: inherit; }
+#top-actions { position: relative; }
+.theme-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 9;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18); padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 8px; min-width: 250px; font-size: 13px;
+}
+.theme-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#themequick { min-width: 40px; }
 .btn {
   border: 1px solid var(--border); background: var(--panel); color: var(--text);
   padding: 5px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
@@ -323,6 +333,9 @@ const SCRIPT = `
   var noteEl = document.getElementById("filter-note");
   var noteText = document.getElementById("filter-note-text");
   var themeBtn = document.getElementById("thememode");
+  var themeMenu = document.getElementById("theme-menu");
+  var themeMenuBtn = document.getElementById("theme-menu-btn");
+  var themeQuick = document.getElementById("themequick");
   var swatches = [].slice.call(document.querySelectorAll("[data-accent-pick]"));
   var LS_KEY = "btdd-filters-v1";
   var THEME_KEY = "btdd-theme-v1";
@@ -447,12 +460,30 @@ const SCRIPT = `
     if (themeBtn) {
       themeBtn.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
     }
+    updateQuickIcon();
     swatches.forEach(function (s) {
       s.classList.toggle("on", s.getAttribute("data-accent-pick") === accent);
     });
     if (save) {
       try { localStorage.setItem(THEME_KEY, JSON.stringify({ mode: mode, accent: accent })); } catch (e) {}
     }
+  }
+
+  function effectiveMode() {
+    if (themeMode === "auto") {
+      try {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      } catch (e) { return "light"; }
+    }
+    return themeMode;
+  }
+
+  function updateQuickIcon() {
+    if (!themeQuick) return;
+    var eff = effectiveMode();
+    var target = eff === "dark" ? "light" : "dark";
+    themeQuick.textContent = eff === "dark" ? "☀️" : "🌙";
+    themeQuick.title = "Switch to " + target + " mode";
   }
 
   function restoreTheme() {
@@ -544,6 +575,31 @@ const SCRIPT = `
   });
   if (sortSel) sortSel.addEventListener("change", onChange);
   if (themeBtn) themeBtn.addEventListener("click", cycleTheme);
+  if (themeQuick) {
+    themeQuick.addEventListener("click", function () {
+      applyTheme(effectiveMode() === "dark" ? "light" : "dark", themeAccent, true);
+    });
+  }
+  if (themeMenuBtn && themeMenu) {
+    themeMenuBtn.addEventListener("click", function () {
+      themeMenu.hidden = !themeMenu.hidden;
+    });
+  }
+  document.addEventListener("click", function (e) {
+    if (!themeMenu || themeMenu.hidden) return;
+    if (themeMenu.contains(e.target)) return;
+    if (themeMenuBtn && themeMenuBtn.contains(e.target)) return;
+    themeMenu.hidden = true;
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && themeMenu && !themeMenu.hidden) themeMenu.hidden = true;
+  });
+  try {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    var onScheme = function () { if (themeMode === "auto") updateQuickIcon(); };
+    if (mq.addEventListener) mq.addEventListener("change", onScheme);
+    else if (mq.addListener) mq.addListener(onScheme);
+  } catch (e) {}
   swatches.forEach(function (s) {
     s.addEventListener("click", function () {
       applyTheme(themeMode, s.getAttribute("data-accent-pick"), true);
@@ -611,13 +667,6 @@ ${courses.map((c) => `<button class="fchip on" type="button" data-fcourse="${esc
 <option value="weight-hi">Weight: high → low</option>
 <option value="weight-lo">Weight: low → high</option>
 </select>
-<span class="flabel">Theme</span>
-<button class="btn" type="button" id="thememode" data-themecycle>Auto</button>
-<button class="swatch" type="button" data-accent-pick="" title="Amber (default)" aria-label="Amber accent" style="background:#b35400"></button>
-<button class="swatch" type="button" data-accent-pick="blue" title="Blue" aria-label="Blue accent" style="background:#0b57cf"></button>
-<button class="swatch" type="button" data-accent-pick="green" title="Green" aria-label="Green accent" style="background:#0f7a3d"></button>
-<button class="swatch" type="button" data-accent-pick="violet" title="Violet" aria-label="Violet accent" style="background:#6d28d9"></button>
-<button class="swatch" type="button" data-accent-pick="pink" title="Pink" aria-label="Pink accent" style="background:#be185d"></button>
 </div>`;
 
   const upcomingHtml = `<section id="upcoming">
@@ -659,10 +708,27 @@ ${eventsTable(pastAll, today, term, false, "past-body")}
     ${term ? `<span class="chip">${escapeHtml(term)}</span>` : ""}
     ${updated ? `<span class="chip">Updated ${updated}</span>` : ""}
   </div>
-  <div class="chips">
+  <div class="chips" id="top-actions">
+    <button class="chip link" type="button" id="theme-menu-btn" title="Theme options">🎨 Theme</button>
     <button class="btn primary" type="button" data-open-cal>📅 Add to calendar</button>
     <a class="chip link" href="/raw">Raw markdown</a>
     <a class="chip link" href="${SOURCE_URL}">Source on GitHub</a>
+    <div class="theme-menu" id="theme-menu" hidden>
+  <div class="theme-row">
+    <span class="flabel">Mode</span>
+    <button class="btn" type="button" id="thememode" data-themecycle>Auto</button>
+    <button class="btn" type="button" id="themequick" data-themequick title="Switch to dark mode" aria-label="Switch between light and dark">🌙</button>
+  </div>
+  <div class="theme-row">
+    <span class="flabel">Accent</span>
+    <button class="swatch" type="button" data-accent-pick="" title="Amber (default)" aria-label="Amber accent" style="background:#b35400"></button>
+    <button class="swatch" type="button" data-accent-pick="blue" title="Blue" aria-label="Blue accent" style="background:#0b57cf"></button>
+    <button class="swatch" type="button" data-accent-pick="green" title="Green" aria-label="Green accent" style="background:#0f7a3d"></button>
+    <button class="swatch" type="button" data-accent-pick="violet" title="Violet" aria-label="Violet accent" style="background:#6d28d9"></button>
+    <button class="swatch" type="button" data-accent-pick="pink" title="Pink" aria-label="Pink accent" style="background:#be185d"></button>
+  </div>
+  <p class="hint" style="margin: 0;">Saved automatically on this browser.</p>
+  </div>
   </div>
 </div>
 ${filterBar}
