@@ -1,0 +1,328 @@
+// Dynamic HTML rendering. The page is rebuilt per request around "today"
+// (America/Toronto): upcoming items first with countdowns, stale rows folded
+// into a collapsed Past section, and calendar buttons everywhere.
+
+import { marked } from "marked";
+import { eventUid } from "./ics.js";
+
+marked.use({ gfm: true, async: false });
+
+const SOURCE_URL = "https://github.com/manzar-shahaan/btech-due-dates";
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (ch) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]
+  );
+}
+
+/** Minimal inline markdown (bold/italic/code) after HTML-escaping. */
+function inlineMd(text) {
+  return escapeHtml(text)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+function mdBlock(lines) {
+  return marked.parse(Array.isArray(lines) ? lines.join("\n") : lines);
+}
+
+/** Wrap markdown tables for horizontal scrolling on narrow screens. */
+function wrapTables(html) {
+  return html.replace(/<table>/g, '<div class="table-wrap"><table>').replace(/<\/table>/g, "</table></div>");
+}
+
+function daysUntil(iso, today) {
+  return Math.round((Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86400000);
+}
+
+function countdown(days) {
+  if (days <= 0) return '<span class="count today">TODAY</span>';
+  if (days === 1) return '<span class="count soon">TOMORROW</span>';
+  if (days <= 7) return `<span class="count soon">in ${days} days</span>`;
+  if (days <= 45) return `<span class="count">in ${days} days</span>`;
+  return `<span class="count">in ${Math.ceil(days / 7)} wks</span>`;
+}
+
+function eventKey(e) {
+  return e.parsed ? e.parsed.start + (e.parsed.time || "00:00") : "9999-99-99";
+}
+
+function eventRows(events, today, term, withCountdown) {
+  return events
+    .map((e) => {
+      const p = e.parsed;
+      const days = p ? daysUntil(p.start, today) : null;
+      const urgent = withCountdown && days !== null && days <= 3;
+      const cal = p
+        ? `<a class="ical" href="/calendar.ics?id=${eventUid(e, term)}" title="Add this event to your calendar">📅</a>`
+        : "";
+      return [
+        `<tr${urgent ? ' class="urgent"' : ""}>`,
+        `<td class="due">${inlineMd(e.due)}${withCountdown && p ? countdown(days) : ""}</td>`,
+        `<td class="course">${e.course === "—" ? '<span class="muted">—</span>' : escapeHtml(e.course)}</td>`,
+        `<td>${inlineMd(e.item)}</td>`,
+        `<td class="wt">${inlineMd(e.wt)}</td>`,
+        `<td class="notes">${inlineMd(e.notes)}</td>`,
+        `<td class="cal">${cal}</td>`,
+        "</tr>",
+      ].join("");
+    })
+    .join("\n");
+}
+
+const TABLE_HEAD = "<thead><tr><th>Due</th><th>Course</th><th>Item</th><th>Wt</th><th>Notes</th><th></th></tr></thead>";
+
+function eventsTable(events, today, term, withCountdown) {
+  return `<div class="table-wrap"><table>${TABLE_HEAD}<tbody>${eventRows(events, today, term, withCountdown)}</tbody></table></div>`;
+}
+
+/** Split rows into upcoming/past by date. Rows past in the file but whose
+ *  date has passed (or vice versa) are re-filed, so the page stays truthful
+ *  even if due-dates.md is a few days stale. */
+function splitEvents(parsed, today) {
+  const upcoming = { dated: [], undated: [] };
+  const past = { dated: [], undated: [] };
+  for (const e of parsed.past) {
+    if (!e.parsed) past.undated.push(e);
+    else if (e.parsed.start < today) past.dated.push(e);
+    else upcoming.dated.push(e);
+  }
+  for (const e of parsed.upcoming) {
+    if (!e.parsed) upcoming.undated.push(e);
+    else if (e.parsed.start < today) past.dated.push(e);
+    else upcoming.dated.push(e);
+  }
+  upcoming.dated.sort((a, b) => (eventKey(a) < eventKey(b) ? -1 : eventKey(a) > eventKey(b) ? 1 : 0));
+  past.dated.sort((a, b) => (eventKey(a) > eventKey(b) ? -1 : eventKey(a) < eventKey(b) ? 1 : 0));
+  return { upcoming, past };
+}
+
+const STYLES = `
+:root {
+  --bg: #f4f5f7; --panel: #ffffff; --text: #1c2024; --muted: #5b636b;
+  --border: #d8dde2; --accent: #b35400; --link: #0b57cf; --th-bg: #eaeef1;
+  --zebra: rgba(0, 0, 0, 0.035);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101214; --panel: #181a1d; --text: #e6e8ea; --muted: #9aa1a8;
+    --border: #2c3034; --accent: #ff9f45; --link: #7ab3ff; --th-bg: #202428;
+    --zebra: rgba(255, 255, 255, 0.035);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6; -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 16px 20px 56px; }
+.topbar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip {
+  display: inline-block; padding: 3px 12px; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--panel); font-size: 13px; color: var(--muted);
+}
+.chip.link { color: var(--link); text-decoration: none; }
+.chip.link:hover { text-decoration: underline; }
+.btn {
+  border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  padding: 5px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; text-decoration: none; display: inline-block;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.08); color: #fff; }
+h1 { font-size: 1.55rem; line-height: 1.3; margin: 1.1em 0 0.6em; }
+h2 { font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin: 2.2em 0 0.8em; }
+h3 { font-size: 1.02rem; margin: 1.6em 0 0.5em; }
+p { margin: 0.7em 0; }
+a { color: var(--link); }
+blockquote {
+  margin: 1.2em 0; padding: 10px 16px; border-left: 4px solid var(--accent);
+  border-radius: 6px; background: var(--panel); color: var(--muted); font-size: 0.95em;
+}
+blockquote p { margin: 0.3em 0; }
+.table-wrap {
+  overflow-x: auto; margin: 1em 0; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--panel);
+}
+table { border-collapse: collapse; width: 100%; font-size: 0.92em; }
+th { text-align: left; background: var(--th-bg); padding: 8px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:last-child td { border-bottom: none; }
+tr.urgent td:first-child { border-left: 3px solid var(--accent); }
+.due { white-space: nowrap; }
+.count {
+  display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.02em; padding: 1px 8px; border-radius: 999px;
+  background: var(--th-bg); color: var(--muted); vertical-align: middle;
+}
+.count.today { background: #d93025; color: #fff; }
+.count.soon { background: var(--accent); color: #fff; }
+.ical { text-decoration: none; font-size: 14px; opacity: 0.5; }
+.ical:hover { opacity: 1; }
+.muted { color: var(--muted); }
+code { background: var(--th-bg); border-radius: 4px; padding: 2px 6px; font-size: 0.88em; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.4em 0; }
+ul { padding-left: 1.4em; }
+details.past {
+  margin: 1.6em 0; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--panel); padding: 0 14px;
+}
+details.past summary { cursor: pointer; padding: 10px 0; font-weight: 600; color: var(--muted); }
+details.past[open] summary { border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45);
+  display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10;
+}
+[hidden] { display: none !important; }
+.modal {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+  max-width: 600px; width: 100%; padding: 18px 20px; max-height: 85vh; overflow: auto;
+}
+.copyrow { display: flex; gap: 8px; align-items: stretch; margin: 0.6em 0; }
+.copyrow code { flex: 1; overflow-wrap: anywhere; font-size: 12px; padding: 6px 8px; user-select: all; }
+.hint { color: var(--muted); font-size: 0.85rem; }
+.modal-actions { margin-top: 14px; display: flex; justify-content: flex-end; gap: 8px; }
+footer { color: var(--muted); font-size: 0.85rem; margin-top: 3em; }
+`;
+
+const SCRIPT = `
+(function () {
+  var modal = document.getElementById("cal-modal");
+  if (!modal) return;
+  function openModal() {
+    document.getElementById("cal-url").textContent = "webcal://" + location.host + "/calendar.ics";
+    document.getElementById("cal-url-https").textContent = "https://" + location.host + "/calendar.ics";
+    modal.hidden = false;
+  }
+  function closeModal() { modal.hidden = true; }
+  document.querySelectorAll("[data-open-cal]").forEach(function (b) {
+    b.addEventListener("click", openModal);
+  });
+  document.querySelectorAll("[data-close-modal]").forEach(function (b) {
+    b.addEventListener("click", closeModal);
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !modal.hidden) closeModal();
+  });
+  document.querySelectorAll("[data-copy]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var el = document.getElementById(b.getAttribute("data-copy"));
+      var text = el.textContent;
+      function done() {
+        b.textContent = "Copied ✓";
+        setTimeout(function () { b.textContent = "Copy"; }, 1600);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        done();
+      }
+    });
+  });
+})();
+`;
+
+const MODAL = `
+<div class="modal-backdrop" id="cal-modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cal-title">
+    <h2 id="cal-title">Add to your calendar</h2>
+    <p class="muted">One subscription covers every dated upcoming item (est. dates marked). It refreshes automatically whenever this page updates — no re-adding needed.</p>
+    <h3>Subscribe — updates automatically</h3>
+    <p><strong>Apple Calendar</strong>: File → New Calendar Subscription → paste this URL.<br>
+    <strong>Outlook (web)</strong>: Add calendar → Subscribe from web → same URL.</p>
+    <div class="copyrow">
+      <code id="cal-url">webcal://…/calendar.ics</code>
+      <button class="btn" type="button" data-copy="cal-url">Copy</button>
+    </div>
+    <p class="hint">If an app rejects <code>webcal://</code>, use the https form: <code id="cal-url-https">https://…/calendar.ics</code></p>
+    <h3>Google Calendar (one-time import)</h3>
+    <p>Google doesn't subscribe to outside feeds — download and import instead (Settings → Import &amp; export). Re-import after big schedule changes.</p>
+    <a class="btn primary" href="/calendar.ics?download=1">Download .ics (upcoming only)</a>
+    <div class="modal-actions">
+      <button class="btn" type="button" data-close-modal>Close</button>
+    </div>
+  </div>
+</div>`;
+
+export function pageHtml({ meta, parsed, today }) {
+  const term = meta.term || "";
+  const { upcoming, past } = splitEvents(parsed, today);
+  const upcomingAll = upcoming.dated.concat(upcoming.undated);
+  const pastAll = past.dated.concat(past.undated);
+
+  const upcomingHtml = `<section id="upcoming">
+<h2>Upcoming <span class="chip">${upcomingAll.length} item${upcomingAll.length === 1 ? "" : "s"}</span></h2>
+${
+  upcomingAll.length
+    ? eventsTable(upcomingAll, today, term, true)
+    : '<p class="muted">Nothing dated ahead — check "Unscheduled / Ongoing" below.</p>'
+}
+</section>`;
+
+  const pastHtml = `<details class="past">
+<summary>Past deadlines (${pastAll.length})</summary>
+${eventsTable(pastAll, today, term, false)}
+</details>`;
+
+  const othersHtml = parsed.others
+    .map((s) => `<section><h2>${escapeHtml(s.title)}</h2>${wrapTables(mdBlock(s.lines))}</section>`)
+    .join("\n");
+
+  const title = escapeHtml(meta.title || "Due Dates");
+  const updated = meta.updated ? escapeHtml(meta.updated) : "";
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>${title}</title>
+<meta name="description" content="Unofficial per-semester due-dates study aid for BTech classmates.">
+<style>${STYLES}</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar">
+  <div class="chips">
+    ${term ? `<span class="chip">${escapeHtml(term)}</span>` : ""}
+    ${updated ? `<span class="chip">Updated ${updated}</span>` : ""}
+  </div>
+  <div class="chips">
+    <button class="btn primary" type="button" data-open-cal>📅 Add to calendar</button>
+    <a class="chip link" href="/raw">Raw markdown</a>
+    <a class="chip link" href="${SOURCE_URL}">Source on GitHub</a>
+  </div>
+</div>
+${wrapTables(mdBlock(parsed.intro))}
+${upcomingHtml}
+${pastHtml}
+${wrapTables(mdBlock(parsed.preambleRest))}
+${othersHtml}
+<footer>Unofficial study aid — Brightspace and official college communications are always authoritative. Dates are Ottawa time (America/Toronto); entries without a time are all-day. Served by a Cloudflare Worker.</footer>
+</div>
+${MODAL}
+<script>${SCRIPT}</script>
+</body>
+</html>`;
+}
+
+export const notFoundHtml = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Not found</title>
+<meta name="color-scheme" content="light dark">
+<style>${STYLES}</style></head>
+<body><div class="wrap"><h1>404 — not found</h1>
+<p><a href="/">Back to the current due-dates page</a></p></div></body></html>`;

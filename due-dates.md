@@ -59,7 +59,6 @@ Last updated: Oct 14, 2026
 | Oct 26–30 | — | *Reading week (all courses, no classes)* | — | ESC4300 no class Oct 26; CST3105/3107 wk8 Oct 27; CST3106 wk8 Oct 28; MGT4701 wk8 Oct 29 |
 | Sun Nov 1 | CST3106 | Lab 7 – Migrate dice module to client-server | 1% | |
 | Sun Nov 1 | CST3106 | **Assignment 1 – Yatzy Game JS** | 10% | |
-| Thu Nov 5 | MGT4701 | **Midterm Exam** (in-class, incl. Excel) | 25% | Week 9 |
 | Sun Nov 8, 12:00 PM | CST3105 | **Assignment 1** | 15% | Shifted from outline's week 6; group submission per Brightspace |
 | Sun Nov 8 | CST3106 | Lab 8 – Creating a Dice Rolling Animation with jQuery | 2% | Older course docs call this "JSON-based Web API" |
 | ~Nov 2–27 | CST3104 | Labs 5–8 (4 × 3.125%) + Quizzes 7–8 (2 × 1.875%) | 16.25% total | (est.) Outline weeks 9–12; exact dates not yet posted |

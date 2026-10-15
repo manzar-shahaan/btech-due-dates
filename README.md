@@ -1,7 +1,7 @@
 # btech-due-dates
 
 Public, per-semester due-dates page for classmates, served via a Cloudflare
-Worker on a public URL. The Worker code lives in this repo (`src/index.js`)
+Worker on a public URL. The Worker code lives in this repo (`src/`)
 and is built and deployed automatically by Cloudflare Workers Builds on every
 push to `main`.
 
@@ -11,8 +11,11 @@ push to `main`.
   The Worker bundles this file at deploy time and serves it as the live page.
 - `semester.yml` — metadata for the site: term label, last-updated date,
   course list. Update `updated:` every time you push content changes.
-- `src/index.js` — the Cloudflare Worker: renders `due-dates.md` to HTML
-  (title and last-updated stamp come from `semester.yml`).
+- `src/` — the Cloudflare Worker. `due-dates.md` is the **single source of
+  truth**: one parser (`src/parse.js`) feeds both the dynamic HTML page
+  (`src/render.js`) and the subscribable calendar feed (`src/ics.js`). Routes
+  are wired in `src/index.js`. Edit `due-dates.md`, push, and the page and
+  every subscribed classmate calendar update together.
 - `wrangler.jsonc` — Worker configuration. The `name` (`btech-due-dates`)
   **must match** the Worker name in the Cloudflare dashboard.
 - `package.json` / `package-lock.json` — dependencies (`marked` for
@@ -27,7 +30,8 @@ push to `main`.
 2. Copy it here as `due-dates.md`, **sanitized** (see Privacy rules below).
 3. Update `updated:` in `semester.yml`.
 4. Commit and push — Workers Builds rebuilds and redeploys the site
-   automatically (usually live within a minute or two).
+   automatically (usually live within a minute or two); classmates with a
+   subscribed calendar see the change on their app's next refresh.
 
 ## End-of-semester rollover
 
@@ -57,13 +61,41 @@ wanted).
 
 | Route | Response |
 |---|---|
-| `/` | Rendered HTML page of the current `due-dates.md` |
+| `/` | Dynamic HTML page: upcoming items first with countdowns ("today" = Ottawa time), stale rows auto-filed into a collapsed Past section, calendar buttons |
 | `/raw` (alias `/due-dates.md`) | Raw markdown |
+| `/calendar.ics` | iCalendar feed of every dated upcoming item — subscribe (Apple/Outlook) or import (Google). `?id=<event>` returns a single event; `?download=1` forces a download |
 | `/health` | Plain-text liveness check (`ok`) |
 
 Content is bundled **at deploy time**, so there is no runtime dependency on
 GitHub — editing `due-dates.md`/`semester.yml` and pushing to `main` is all
 it takes to update the live site.
+
+### Calendar integration (subscription)
+
+- The **"Add to calendar" button** opens a modal with the `webcal://` URL to
+  paste **once**: Apple Calendar (File → New Calendar Subscription) and
+  Outlook (Add calendar → Subscribe from web). Subscribers' apps re-fetch the
+  feed on their own schedule — every push flows into their calendar with no
+  action needed on their part.
+- **Google Calendar** cannot subscribe to outside feeds — the modal offers a
+  one-time `.ics` download to import (Settings → Import & export).
+- Each upcoming row has a **📅 button** that downloads just that event.
+- Estimated rows (leading `~`) are prefixed `(est.)` in the feed. Date-only
+  entries become all-day events; timed entries use `America/Toronto`.
+- The feed only ever contains today-and-future items, so subscribed calendars
+  self-clean at semester rollover — nothing for classmates to re-add.
+
+### Editing due-dates.md (it drives everything)
+
+The **Due** column is parsed, not just displayed. Supported shapes:
+
+- `Sun Oct 11` or `Mon Dec 14, 11:59 PM` — single date, optional time
+- `Oct 26–30` — date range (becomes a multi-day all-day event)
+- leading `~` — estimated date (kept in output, marked `(est.)`)
+- `**bold**` — emphasis only; `(wk N)` suffixes are excluded from date math
+
+Anything else still renders as a normal row, but gets no countdown and no
+calendar entry — keep Due dates in the shapes above.
 
 ### First-time dashboard setup (Workers Builds)
 
