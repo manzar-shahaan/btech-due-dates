@@ -4,7 +4,7 @@
 
 Last updated: Oct 14, 2026
 
-**Class times** (for in-class assessments): CST3104 Mon 09:00–13:00 · ESC4300 Mon 14:00–17:00 · CST3105 Tue 13:00–16:00 · CST3107 Tue 16:30–18:30 · CST3106 Wed 16:00–20:00 · MGT4701 Thu 19:00–22:00
+**Class times** (for assessments): CST3104 Mon 09:00–13:00 · ESC4300 Mon 14:00–17:00 · CST3105 Tue 13:00–16:00 · CST3107 Tue 16:30–18:30 · CST3106 Wed 16:00–20:00 · MGT4701 Thu 19:00–22:00
 
 **Legend**
 - **Wt** = weight as % of that course's final grade. Per-course totals sum to 100% → grand total 600% (audit at bottom).
@@ -18,16 +18,16 @@ Last updated: Oct 14, 2026
 | Due | Course | Item | Wt |
 |---|---|---|---|
 | Sun Sep 13 | CST3106 | Lab 1 – Dev env with Git/GitHub | 1% |
-| Mon Sep 14, 5:00 PM | ESC4300 | In-Class Activity 1 | part of 10% bucket |
+| Mon Sep 14, 5:00 PM | ESC4300 | Activity 1 | part of 10% bucket |
 | Thu Sep 17 | CST3105 | Lab 1 | 1.67% |
 | Fri Sep 18 | CST3104 | Week 1 Quiz | 1.875% |
 | Sun Sep 20 | CST3106 | Lab 2 – Pull requests, conflicts | 1% |
-| Mon Sep 21, 5:00 PM | ESC4300 | In-Class Activity 2 | part of 10% bucket |
+| Mon Sep 21, 5:00 PM | ESC4300 | Activity 2 | part of 10% bucket |
 | Mon Sep 21 | CST3104 | Lab 1 | 3.125% |
 | Fri Sep 25 | CST3104 | Week 2 Quiz | 1.875% |
 | Sun Sep 27 | CST3106 | Lab 3 – Student resume | 1% |
 | Sun Sep 27 | CST3105 | Lab 2 | 1.67% |
-| Mon Sep 28, 5:00 PM | ESC4300 | In-Class Activity 3 | part of 10% bucket |
+| Mon Sep 28, 5:00 PM | ESC4300 | Activity 3 | part of 10% bucket |
 | Mon Sep 28 | CST3104 | Lab 2 | 3.125% |
 | Fri Oct 2 | CST3105 | Lab 3 | 1.67% |
 | Sun Oct 4 | CST3106 | Lab 4 – Documenting a design system | 2% |
@@ -35,7 +35,7 @@ Last updated: Oct 14, 2026
 | Sun Oct 4 | ESC4300 | Quiz 1 (Ch. 1, 2) | 5% |
 | Mon Oct 5 | CST3104 | Week 3 Lab | 3.125% |
 | Mon Oct 5 | CST3104 | Week 3 Quiz | 1.875% |
-| Mon Oct 5, 5:00 PM | ESC4300 | In-Class Activity 4 | part of 10% bucket |
+| Mon Oct 5, 5:00 PM | ESC4300 | Activity 4 | part of 10% bucket |
 | Wed Oct 7 | MGT4701 | Group Project Proposal | checkpoint of 20% project |
 | Fri Oct 9 | CST3104 | Week 4 Quiz | 1.875% |
 
@@ -50,11 +50,11 @@ Last updated: Oct 14, 2026
 | Fri Oct 16 | CST3104 | Week 5 Quiz | 1.875% | Window Oct 12–16 |
 | Sun Oct 18 | CST3106 | Lab 6 – Yatzy Game JS | 2% | |
 | Sun Oct 18 | ESC4300 | Quiz 2 (Ch. 4) | 5% | Window Oct 12–18 (Thanksgiving — video posted, no live class) |
-| **Mon Oct 19** | CST3104 | **Midterm** (in-class) | 10% | Week 7, during Mon class |
-| **Mon Oct 19** | ESC4300 | **Midterm Exam** (in-class) | 25% | Week of Oct 19 per CSI |
+| **Mon Oct 19** | CST3104 | **Midterm** | 10% | Week 7, during Mon class |
+| **Mon Oct 19** | ESC4300 | **Midterm Exam** | 25% | Week of Oct 19 per CSI |
 | **Mon Oct 19, 11:59 PM** | CST3107 | **Group Assignment 1** – OS comparison report | **22%** (report 20 + presentation 2) | Demo in class Oct 20 (week 7) |
-| Tue Oct 20 | CST3105 | **Quiz 1** (in-class) | 15% | Week 7 per CSI |
-| Thu Oct 22 | MGT4701 | **Midterm Exam** (in-class, incl. Excel) | 25% | Week 7 |
+| Tue Oct 20 | CST3105 | **Quiz 1** | 15% | Week 7 per CSI |
+| Thu Oct 22 | MGT4701 | **Midterm Exam** (incl. Excel) | 25% | Week 7 |
 | Fri Oct 23 | CST3104 | Week 6 Quiz | 1.875% | Window Oct 19–23 |
 | Oct 26–30 | — | *Reading week (all courses, no classes)* | — | ESC4300 no class Oct 26; CST3105/3107 wk8 Oct 27; CST3106 wk8 Oct 28; MGT4701 wk8 Oct 29 |
 | Sun Nov 1 | CST3106 | Lab 7 – Migrate dice module to client-server | 1% | |
@@ -63,7 +63,7 @@ Last updated: Oct 14, 2026
 | Sun Nov 8, 12:00 PM | CST3105 | **Assignment 1** | 15% | Shifted from outline's week 6; group submission per Brightspace |
 | Sun Nov 8 | CST3106 | Lab 8 – Creating a Dice Rolling Animation with jQuery | 2% | Older course docs call this "JSON-based Web API" |
 | Mon Nov 9 | CST3104 | Lab 6 | 3.125% | |
-| Tue Nov 10 | CST3107 | Quiz 2 (in-class) | 5% | Week 10 |
+| Tue Nov 10 | CST3107 | Quiz 2 | 5% | Week 10 |
 | **Sun Nov 15** | CST3106 | **Assignment 2 – Yatzy w/ Node.js & Express** | 12% | |
 | **Sun Nov 15** | CST3106 | **PD#2 – Portfolio + Yatzy Game** | 7% | |
 | Sun Nov 15 | CST3106 | Lab 9 – Test Postman collection | 2% | |
@@ -71,20 +71,20 @@ Last updated: Oct 14, 2026
 | Mon Nov 16 | CST3104 | Lab 7 | 3.125% | |
 | Sun Nov 22 | CST3106 | Lab 10 – Hospital Triage design system | 2% | |
 | Mon Nov 23 | CST3104 | Lab 8 | 3.125% | |
-| Tue Nov 24 | CST3107 | Quiz 3 (in-class) | 5% | Week 12 |
+| Tue Nov 24 | CST3107 | Quiz 3 | 5% | Week 12 |
 | ~Tue Nov 24 (wk 12) | CST3105 | **Assignment 2** | 15% | (est.) Not yet on Brightspace |
 | Thu Nov 26 | MGT4701 | **Group Assignment 2** | 10% | Not yet on Brightspace |
 | Thu Nov 26 | CST3105 | Lab 5 | 1.67% | |
 | Sun Nov 29 | CST3106 | Lab 11 – Enterprise DB design | 2% | |
 | Sun Nov 29 | ESC4300 | Quiz 4 (Ch. 12) | 5% | Window Nov 23–29 |
-| Tue Dec 1 | CST3105 | **Quiz 2** (in-class) | 15% | Week 13 |
-| Tue Dec 1 | CST3107 | Quiz 4 (in-class) | 5% | Week 13 |
+| Tue Dec 1 | CST3105 | **Quiz 2** | 15% | Week 13 |
+| Tue Dec 1 | CST3107 | Quiz 4 | 5% | Week 13 |
 | Thu Dec 3 | MGT4701 | **Group Project due** | 20% | Not yet on Brightspace |
 | Sun Dec 6 | CST3105 | Lab 6 | 1.67% | |
 | Sun Dec 6 | CST3106 | Lab 12 – APIs w/ enterprise DB systems | 2% | |
 | **Mon Dec 7** | CST3104 | **Final Project demonstration** (in-lab) | 25% | Week 14; late demos not accepted |
 | **Mon Dec 7, 11:59 PM** | ESC4300 | **Group Project Report (65 pts) + Presentation (35 pts)** | 20% total (≈13% + ≈7%) | Both due same night |
-| Thu Dec 10 | MGT4701 | Group Project Presentation (in-class) | incl. in 20% project | Week 14 |
+| Thu Dec 10 | MGT4701 | Group Project Presentation | incl. in 20% project | Week 14 |
 | **Sun Dec 13, 11:59 PM** | CST3106 | **Assignment 3 – Hospital Triage App** | 18% | |
 | **Sun Dec 13, 5:00 PM** | CST3106 | **PD#3 – Portfolio + Triage App** | 6% | |
 | Mon Dec 14, 11:59 PM | CST3107 | **Assignment 2 – Linux install/config report** | 10% | Opens Nov 8; outline said week 14 (Dec 8) |
@@ -102,9 +102,9 @@ Last updated: Oct 14, 2026
 | MGT4701 | Final Exam | 35% | "TBD" (week 15) per CSI |
 | CST3107 | Attendance | 3% | Ongoing all term |
 | CST3107 | Group participation (incl. 2% week-2 activity) | 5% | Ongoing all term |
-| ESC4300 | In-Class Activities | 10% bucket | 4 posted so far; more expected weekly to Dec 7 |
+| ESC4300 | Activities | 10% bucket | 4 posted so far; more expected weekly to Dec 7 |
 | ESC4300 | Active participation bonus | +5% | Bonus, not counted in 100% |
-| MGT4701 | Excel Labs 1–6 (Sep 17, Sep 24, Oct 8, Oct 22, Nov 19, Nov 26) | 0% | In-class, ungraded learning activities |
+| MGT4701 | Excel Labs 1–6 (Sep 17, Sep 24, Oct 8, Oct 22, Nov 19, Nov 26) | 0% | ungraded learning activities |
 
 ---
 
@@ -131,7 +131,7 @@ Last updated: Oct 14, 2026
 - First Monday (Sep 7) was Labour Day — first class was Sep 14. CSI week numbering tracks the college calendar (week 8 break = Oct 26).
 
 ### CST3105 (Adv. DB & SQL)
-- **Assignment 1 shifted ~4 weeks**: outline says week 6 (~Oct 13); Brightspace says **Nov 8, 12:00 PM**. Quiz 1 (outline week 7) is still assumed in-class Oct 20 — watch for changes.
+- **Assignment 1 shifted ~4 weeks**: outline says week 6 (~Oct 13); Brightspace says **Nov 8, 12:00 PM**. Quiz 1 (outline week 7) is still assumed for Oct 20 — watch for changes.
 - **Assignment 2 (15%, outline week 12 ≈ Nov 24) is not on Brightspace yet** — expect a posted date later (possibly shifted, like Assignment 1).
 - Lab weights assume exactly 6 labs (10% ÷ 6 ≈ 1.67% each); if more are posted, per-lab share dilutes.
 - Final exam: week 15 ≈ Dec 15 per outline, but the registrar's timetable is authoritative.
@@ -145,14 +145,14 @@ Last updated: Oct 14, 2026
 - An older "pre-defined evaluation" post conflicts with the CSI evaluation scheme; the **CSI** (GA1 22%, midterm 10%, final 30%, attendance 3%, group participation 5%) matches the posted 22%-weighted GA1 and is used here.
 - Assignment 2: outline week 14 (Dec 8) vs Brightspace **Dec 14, 11:59 PM** — Brightspace wins.
 - GA1: report due Mon Oct 19 night, demo Tue Oct 20 in class (week 7).
-- Quizzes (4 × 5%) are dated from CSI weeks 7/10/12/13 as in-class.
+- Quizzes (4 × 5%) are dated from CSI weeks 7/10/12/13.
 
 ### ESC4300 (Ops & SCM)
 - All four Brightspace quiz dates **match** the CSI (each closes the Sunday of its scheduled week).
 - Thanksgiving (Oct 12): no live class, video posted; Quiz 2 window runs Oct 12–18.
 - Quiz chapters lag the weekly topic by ~2 weeks — quizzes test prior content, not an error.
-- In-Class Activities are a 10% bucket; only 4 of N posted so far. More likely appear weekly — check Brightspace Mondays.
-- Midterm (25%) is in-class Oct 19 — **same day as CST3104's midterm and CST3107's GA1 (22%)**. Heaviest day of the term.
+- Activities are a 10% bucket; only 4 of N posted so far. More likely appear weekly — check Brightspace Mondays.
+- Midterm (25%) is Oct 19 — **same day as CST3104's midterm and CST3107's GA1 (22%)**. Heaviest day of the term.
 - Final exam (25%) has no date in the CSI — exam period, TBD.
 
 ### MGT4701 (Adv. Business Stats)
