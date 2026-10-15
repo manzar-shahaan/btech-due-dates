@@ -1,0 +1,20 @@
+// Wrangler configuration for the btech-due-dates Worker.
+//
+// IMPORTANT: when connecting this repo to the Worker via Workers Builds in the
+// Cloudflare dashboard, the Worker you create there must be named exactly
+// "btech-due-dates" — the dashboard Worker name must match "name" below or the
+// build will fail.
+{
+  "name": "btech-due-dates",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  // Bundle the content files from the repo root as text modules, so pushing an
+  // edit to due-dates.md / semester.yml triggers a rebuild with the new content.
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/*.md", "**/*.yml", "**/*.yaml"],
+      "fallthrough": true
+    }
+  ]
+}

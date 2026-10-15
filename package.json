@@ -1,0 +1,19 @@
+{
+  "name": "btech-due-dates",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy",
+    "check": "npx wrangler deploy --dry-run --outdir=dist"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "marked": "^18.1.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.151.0"
+  }
+}
