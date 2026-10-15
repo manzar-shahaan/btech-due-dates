@@ -221,11 +221,18 @@ button.chip { cursor: pointer; font-family: inherit; }
 .btn:hover { border-color: var(--accent); color: var(--accent); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn.primary:hover { filter: brightness(1.08); color: #fff; }
+/* Filter strip — the control bar for the table below it. Sits between the
+   Upcoming heading and the table and joins onto it (shared border, no gap)
+   so it reads as part of the table, not a floating panel. */
 .filters {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  margin: 14px 0 0; padding: 10px 12px; border: 1px solid var(--border);
-  border-radius: 8px; background: var(--panel);
+  margin: 0; padding: 8px 12px;
+  border: 1px solid var(--border); border-bottom: none;
+  border-radius: 8px 8px 0 0; background: var(--panel);
 }
+/* Standalone (no table below, e.g. nothing dated ahead): close the box. */
+.filters:last-child { border-bottom: 1px solid var(--border); border-radius: 8px; }
+.table-suite .table-wrap { margin: 0; border-top: none; border-radius: 0 0 8px 8px; }
 .flabel { color: var(--muted); font-size: 13px; font-weight: 600; }
 .fchip {
   border: 1px solid var(--border); background: var(--panel); color: var(--muted);
@@ -358,6 +365,7 @@ footer { color: var(--muted); font-size: 0.85rem; margin-top: 3em; }
   .wrap { padding: 12px 14px 48px; }
   table { font-size: 0.85em; }
   th, td { padding: 6px 8px; }
+  .filters { padding: 6px 8px; }
   .count { display: block; margin: 2px 0 0; width: fit-content; }
   .modal-backdrop { padding: 0; align-items: flex-end; }
   .modal {
@@ -826,11 +834,15 @@ ${courses.map((c) => `<button class="fchip on" type="button" data-fcourse="${esc
 
   const upcomingHtml = `<section id="upcoming">
 <h2>Upcoming <span class="chip" id="upcoming-count">${upcomingAll.length} item${upcomingAll.length === 1 ? "" : "s"}</span></h2>
+<div class="table-suite">
+${filterBar}
 ${
   upcomingAll.length
     ? eventsTable(upcomingAll, today, term, true, "upcoming-body")
-    : '<p class="muted">Nothing dated ahead — check "Unscheduled / Ongoing" below.</p>'
+    : ""
 }
+</div>
+${upcomingAll.length ? "" : '<p class="muted">Nothing dated ahead — check "Unscheduled / Ongoing" below.</p>'}
 <p class="muted" id="filter-empty" hidden>No items match the current filters — enable a course above.</p>
 </section>`;
 
@@ -887,7 +899,6 @@ ${eventsTable(pastAll, today, term, false, "past-body")}
   </div>
   </div>
 </div>
-${filterBar}
 ${wrapTables(mdBlock(parsed.intro))}
 ${upcomingHtml}
 ${pastHtml}
