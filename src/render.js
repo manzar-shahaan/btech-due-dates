@@ -4,7 +4,9 @@
 //
 // Course filtering + sorting run client-side: every event row carries
 // data-course / data-orig / data-wt attributes, and inline JS toggles
-// visibility and re-orders rows. The calendar modal builds its subscribe
+// visibility and re-orders rows. Rows also carry a data-did content hash
+// backing the browser-only "done" checkbox (localStorage, never sent to
+// the server). The calendar modal builds its subscribe
 // URLs from whatever courses are currently enabled, matching the
 // server-side ?courses= whitelist on /calendar.ics.
 
@@ -105,6 +107,16 @@ function stripMd(s) {
     .replace(/[*_`~]/g, "");
 }
 
+/** Stable per-row identity for the browser-only "done" checkbox — hashes
+ *  course|item|due so a tick survives row reordering in the file but resets
+ *  if the entry itself is edited. Never sent to the server. */
+function rowId(e) {
+  const raw = `${e.course || ""}|${e.item || ""}|${e.due || ""}`;
+  let h = 5381;
+  for (let i = 0; i < raw.length; i++) h = ((h << 5) + h + raw.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+}
+
 function eventRows(events, today, term, withCountdown) {
   return events
     .map((e, i) => {
@@ -112,7 +124,8 @@ function eventRows(events, today, term, withCountdown) {
       const days = p ? daysUntil(p.start, today) : null;
       const urgent = withCountdown && days !== null && days <= 3;
       return [
-        `<tr${urgent ? ' class="urgent"' : ""} data-course="${escapeHtml(e.course)}" data-orig="${i}" data-wt="${weightValue(e.wt)}">`,
+        `<tr${urgent ? ' class="urgent"' : ""} data-course="${escapeHtml(e.course)}" data-orig="${i}" data-wt="${weightValue(e.wt)}" data-did="${rowId(e)}">`,
+        `<td class="ck"><input class="done-ck" type="checkbox" data-did="${rowId(e)}" title="Mark as done"></td>`,
         `<td class="due">${inlineMd(e.due)}${withCountdown && p ? countdown(days) : ""}</td>`,
         `<td class="course">${e.course === "—" ? '<span class="muted">—</span>' : escapeHtml(e.course)}</td>`,
         `<td>${inlineMd(e.item)}</td>`,
@@ -125,7 +138,7 @@ function eventRows(events, today, term, withCountdown) {
     .join("\n");
 }
 
-const TABLE_HEAD = "<thead><tr><th>Due</th><th>Course</th><th>Item</th><th>Wt</th><th>Notes</th><th></th></tr></thead>";
+const TABLE_HEAD = "<thead><tr><th></th><th>Due</th><th>Course</th><th>Item</th><th>Wt</th><th>Notes</th><th></th></tr></thead>";
 
 function eventsTable(events, today, term, withCountdown, tbodyId) {
   return `<div class="table-wrap"><table>${TABLE_HEAD}<tbody id="${tbodyId}">${eventRows(events, today, term, withCountdown)}</tbody></table></div>`;
@@ -323,6 +336,23 @@ tr.urgent td:first-child { border-left: 3px solid var(--accent); }
   line-height: 1; border-radius: 6px;
 }
 .kebab:hover { opacity: 1; color: var(--text); }
+/* Browser-only "done" checkbox: hidden until the row is hovered, checked
+   ones stay visible; touch devices always show it faintly. */
+td.ck { width: 1%; }
+input.done-ck {
+  accent-color: var(--accent); cursor: pointer; margin: 0;
+  opacity: 0; transition: opacity 0.15s;
+}
+tr:hover input.done-ck { opacity: 1; }
+input.done-ck:checked { opacity: 1; }
+@media (hover: none) { input.done-ck { opacity: 0.35; } }
+tr.done td { text-decoration: line-through; color: var(--muted); }
+tr.done.urgent td:first-child { border-left-color: transparent; }
+/* Countdown chips on done rows stop shouting: outline only, no fill. */
+tr.done .count.today, tr.done .count.soon {
+  background: transparent; color: var(--muted); border: 1px solid var(--muted);
+  padding: 0 7px;
+}
 .report-menu {
   position: fixed; z-index: 11; background: var(--panel); border: 1px solid var(--border);
   border-radius: 10px; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
@@ -773,6 +803,39 @@ const SCRIPT = `
   });
   document.addEventListener("keydown", function (e) {
     if (e && e.key === "Escape" && reportMenu && !reportMenu.hidden) reportMenu.hidden = true;
+  });
+
+  // Browser-only "mark as done" checkboxes — toggles live in localStorage
+  // only; nothing is ever sent to the server (no PUT/POST).
+  var DONE_KEY = "btdd-done-v1";
+  var doneSet = {};
+  try {
+    var savedDone = JSON.parse(localStorage.getItem(DONE_KEY) || "[]");
+    if (savedDone && savedDone.length) {
+      for (var di = 0; di < savedDone.length; di++) doneSet[savedDone[di]] = true;
+    }
+  } catch (e) {}
+  var didMap = {};
+  [].slice.call(document.querySelectorAll("tr[data-did]")).forEach(function (tr) {
+    didMap[tr.getAttribute("data-did")] = tr;
+  });
+  function saveDone() {
+    try { localStorage.setItem(DONE_KEY, JSON.stringify(Object.keys(doneSet))); } catch (e) {}
+  }
+  [].slice.call(document.querySelectorAll("input[data-did]")).forEach(function (inp) {
+    var did = inp.getAttribute("data-did");
+    function setDone(on) {
+      if (on) doneSet[did] = true; else delete doneSet[did];
+      var tr = didMap[did];
+      if (tr) tr.classList.toggle("done", on);
+      inp.checked = on;
+      inp.title = on ? "Completed — click to undo" : "Mark as done";
+    }
+    inp.addEventListener("change", function () {
+      setDone(!doneSet[did]);
+      saveDone();
+    });
+    if (doneSet[did]) setDone(true);
   });
 
   restoreTheme();
