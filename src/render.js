@@ -336,16 +336,14 @@ tr.urgent td:first-child { border-left: 3px solid var(--accent); }
   line-height: 1; border-radius: 6px;
 }
 .kebab:hover { opacity: 1; color: var(--text); }
-/* Browser-only "done" checkbox: hidden until the row is hovered, checked
-   ones stay visible; touch devices always show it faintly. */
-td.ck { width: 1%; }
+/* Browser-only "done" checkbox: subtle at rest, full on row hover,
+   checked ones always solid. */
+td.ck { width: 1%; padding-right: 0; }
 input.done-ck {
   accent-color: var(--accent); cursor: pointer; margin: 0;
-  opacity: 0; transition: opacity 0.15s;
+  opacity: 0.35; transition: opacity 0.15s;
 }
-tr:hover input.done-ck { opacity: 1; }
-input.done-ck:checked { opacity: 1; }
-@media (hover: none) { input.done-ck { opacity: 0.35; } }
+tr:hover input.done-ck, input.done-ck:checked { opacity: 1; }
 tr.done td { text-decoration: line-through; color: var(--muted); }
 tr.done.urgent td:first-child { border-left-color: transparent; }
 /* Countdown chips on done rows stop shouting: outline only, no fill. */
