@@ -44,6 +44,28 @@ function countdown(days) {
   return `<span class="count">in ${Math.ceil(days / 7)} wks</span>`;
 }
 
+/** Format the semester.yml "updated" stamp for the header chip:
+ *  "2026-10-14" -> "Oct 14, 2026" · "2026-10-14 21:08" -> "Oct 14, 2026, 9:08 PM ET".
+ *  Anything unparseable is shown as-is. */
+function formatUpdated(value) {
+  const raw = String(value);
+  const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?$/);
+  const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  if (!m) return raw;
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return raw;
+  let out = `${MONTH_NAMES[month - 1]} ${day}, ${m[1]}`;
+  if (m[4] !== undefined) {
+    let h = Number(m[4]);
+    if (h < 0 || h > 23 || Number(m[5]) > 59) return raw;
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    out += `, ${h}:${m[5]} ${ampm} ET`;
+  }
+  return out;
+}
+
 function eventKey(e) {
   return e.parsed ? e.parsed.start + (e.parsed.time || "00:00") : "9999-99-99";
 }
@@ -195,8 +217,10 @@ const SCRIPT = `
   var modal = document.getElementById("cal-modal");
   if (!modal) return;
   function openModal() {
+    var icsHttps = "https://" + location.host + "/calendar.ics";
     document.getElementById("cal-url").textContent = "webcal://" + location.host + "/calendar.ics";
-    document.getElementById("cal-url-https").textContent = "https://" + location.host + "/calendar.ics";
+    document.getElementById("cal-url-https").textContent = icsHttps;
+    document.getElementById("gcal-add").href = "https://calendar.google.com/calendar/render?cid=" + encodeURIComponent(icsHttps);
     modal.hidden = false;
   }
   function closeModal() { modal.hidden = true; }
@@ -240,7 +264,7 @@ const MODAL = `
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cal-title">
     <h2 id="cal-title">Add to your calendar</h2>
     <p class="muted">One subscription covers every dated upcoming item (est. dates marked). It refreshes automatically whenever this page updates — no re-adding needed.</p>
-    <h3>Subscribe — updates automatically</h3>
+    <h3>Apple Calendar &amp; Outlook — subscribe once</h3>
     <p><strong>Apple Calendar</strong>: File → New Calendar Subscription → paste this URL.<br>
     <strong>Outlook (web)</strong>: Add calendar → Subscribe from web → same URL.</p>
     <div class="copyrow">
@@ -248,9 +272,12 @@ const MODAL = `
       <button class="btn" type="button" data-copy="cal-url">Copy</button>
     </div>
     <p class="hint">If an app rejects <code>webcal://</code>, use the https form: <code id="cal-url-https">https://…/calendar.ics</code></p>
-    <h3>Google Calendar (one-time import)</h3>
-    <p>Google doesn't subscribe to outside feeds — download and import instead (Settings → Import &amp; export). Re-import after big schedule changes.</p>
-    <a class="btn primary" href="/calendar.ics?download=1">Download .ics (upcoming only)</a>
+    <h3>Google Calendar</h3>
+    <a class="btn primary" id="gcal-add" href="#" rel="noopener">Add to Google Calendar</a>
+    <p class="hint">One click while logged in to Google. Or manually: Google Calendar (web) → Settings → Add calendar → <strong>From URL</strong> → paste the <strong>https</strong> link (Google rejects <code>webcal://</code>) → Add. It shows up under "Other calendars" and refreshes automatically — Google re-checks the feed roughly every 12–24 hours. (Subscribing works on the web version; the mobile app then displays it.)</p>
+    <h3>Prefer an editable local copy?</h3>
+    <p class="hint">Download and import (Settings → Import &amp; export) — an imported calendar is a static snapshot that won't auto-update.</p>
+    <a class="btn" href="/calendar.ics?download=1">Download .ics (upcoming only)</a>
     <div class="modal-actions">
       <button class="btn" type="button" data-close-modal>Close</button>
     </div>
@@ -282,7 +309,7 @@ ${eventsTable(pastAll, today, term, false)}
     .join("\n");
 
   const title = escapeHtml(meta.title || "Due Dates");
-  const updated = meta.updated ? escapeHtml(meta.updated) : "";
+  const updated = meta.updated ? escapeHtml(formatUpdated(meta.updated)) : "";
 
   return `<!doctype html>
 <html lang="en">

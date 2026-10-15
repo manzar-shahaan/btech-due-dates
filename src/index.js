@@ -10,7 +10,7 @@
 import dueDatesMarkdown from "../due-dates.md";
 import semesterYml from "../semester.yml";
 import { parseSemesterYml, parseDueDates, todayInToronto } from "./parse.js";
-import { buildIcs, eventUid } from "./ics.js";
+import { buildIcs, eventUid, feedEtag } from "./ics.js";
 import { pageHtml, notFoundHtml } from "./render.js";
 
 const meta = parseSemesterYml(semesterYml);
@@ -77,7 +77,21 @@ export default {
           events = dated.filter((e) => e.parsed.start >= today);
         }
 
-        const headers = { ...ICS_HEADERS };
+        // ETag covers everything except the per-request DTSTAMP, so the
+        // same feed content gets 304s between deploys (Apple/Google poll
+        // politely with conditional requests).
+        const etag = feedEtag(events, meta);
+        if (request.headers.get("if-none-match") === `"${etag}"`) {
+          return new Response(null, {
+            status: 304,
+            headers: {
+              etag: `"${etag}"`,
+              "cache-control": ICS_HEADERS["cache-control"],
+            },
+          });
+        }
+
+        const headers = { ...ICS_HEADERS, etag: `"${etag}"` };
         if (download) {
           headers["content-disposition"] = 'attachment; filename="btech-due-dates.ics"';
         }

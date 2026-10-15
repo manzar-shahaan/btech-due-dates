@@ -9,8 +9,11 @@ push to `main`.
 
 - `due-dates.md` — **always the current semester** (sanitized public copy).
   The Worker bundles this file at deploy time and serves it as the live page.
-- `semester.yml` — metadata for the site: term label, last-updated date,
+- `semester.yml` — metadata for the site: term label, last-updated stamp,
   course list. Update `updated:` every time you push content changes.
+  Include the time (no seconds, quoted) — e.g. `updated: "2026-10-14 21:08"` —
+  shown on the page as "Oct 14, 2026, 9:08 PM ET". Date-only (`2026-10-14`)
+  also still works.
 - `src/` — the Cloudflare Worker. `due-dates.md` is the **single source of
   truth**: one parser (`src/parse.js`) feeds both the dynamic HTML page
   (`src/render.js`) and the subscribable calendar feed (`src/ics.js`). Routes
@@ -28,7 +31,8 @@ push to `main`.
 1. Edit the **master** (private) file in the Semesters repo:
    `_Active/<TERM>/due_dates.md` — that copy may contain personal statuses.
 2. Copy it here as `due-dates.md`, **sanitized** (see Privacy rules below).
-3. Update `updated:` in `semester.yml`.
+3. Update `updated:` in `semester.yml` — date **and** time, e.g.
+   `updated: "2026-10-14 21:08"` (your local Ottawa time; no seconds).
 4. Commit and push — Workers Builds rebuilds and redeploys the site
    automatically (usually live within a minute or two); classmates with a
    subscribed calendar see the change on their app's next refresh.
@@ -38,7 +42,7 @@ push to `main`.
 1. `mkdir archive && git mv due-dates.md archive/<TERM>.md` (e.g.
    `archive/2026-Fall.md`), commit.
 2. Create the new term's sanitized `due-dates.md` from the new term's master.
-3. Update `term:`, `title:`, `courses:`, `updated:` in `semester.yml`.
+3. Update `term:`, `title:`, `courses:`, `updated:` (date + time) in `semester.yml`.
 4. Commit and push.
 
 ## Privacy rules (before every push)
@@ -77,8 +81,17 @@ it takes to update the live site.
   Outlook (Add calendar → Subscribe from web). Subscribers' apps re-fetch the
   feed on their own schedule — every push flows into their calendar with no
   action needed on their part.
-- **Google Calendar** cannot subscribe to outside feeds — the modal offers a
-  one-time `.ics` download to import (Settings → Import & export).
+- **Google Calendar** subscribes too (web only): Settings → Add calendar →
+  From URL → paste the **https** form (Google rejects `webcal://`). The modal
+  has a one-click **Add to Google Calendar** button that deep-links into the
+  subscribe flow (`calendar.google.com/calendar/render?cid=…`). Google
+  re-checks the feed roughly every 12–24 hours; the mobile app displays the
+  subscribed calendar but can't add it directly. The `.ics` download remains
+  a fallback for an editable local copy — note an imported calendar is a
+  static snapshot that won't auto-update.
+- Feed details for client compatibility: stable content-hashed UIDs (Google
+  keys updates on UID), `TRANSP:TRANSPARENT` per event, all-day `VALUE=DATE`
+  for date-only entries, and ETag/304 support for conditional re-fetches.
 - Each upcoming row has a **📅 button** that downloads just that event.
 - Estimated rows (leading `~`) are prefixed `(est.)` in the feed. Date-only
   entries become all-day events; timed entries use `America/Toronto`.

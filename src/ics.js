@@ -131,9 +131,7 @@ function eventBlock(e, term, stamp) {
   return lines;
 }
 
-/** Build a complete VCALENDAR from parsed events (each must have `parsed`). */
-export function buildIcs(events, meta, now = new Date()) {
-  const stamp = utcStamp(now);
+function calendarLines(events, meta, stamp) {
   const sorted = [...events].sort((a, b) => {
     const ka = a.parsed.start + (a.parsed.time || "00:00");
     const kb = b.parsed.start + (b.parsed.time || "00:00");
@@ -152,5 +150,25 @@ export function buildIcs(events, meta, now = new Date()) {
   ];
   for (const e of sorted) lines.push(...eventBlock(e, meta.term, stamp));
   lines.push("END:VCALENDAR");
-  return lines.map(foldLine).join(CRLF) + CRLF;
+  return lines;
+}
+
+/** Build a complete VCALENDAR from parsed events (each must have `parsed`). */
+export function buildIcs(events, meta, now = new Date()) {
+  return calendarLines(events, meta, utcStamp(now)).map(foldLine).join(CRLF) + CRLF;
+}
+
+/**
+ * Stable ETag over the feed's semantic content — everything except the
+ * per-request DTSTAMP — so conditional requests get 304s between deploys.
+ * Like the UIDs, it only changes when the feed content actually changes
+ * (a deploy or a day rollover), never on a plain re-fetch.
+ */
+export function feedEtag(events, meta) {
+  const canonical = calendarLines(events, meta, "STAMP")
+    .filter((line) => !line.startsWith("DTSTAMP:"))
+    .join("\n");
+  let h = 5381;
+  for (const ch of canonical) h = (h * 33 + ch.codePointAt(0)) | 0;
+  return (h >>> 0).toString(36);
 }
