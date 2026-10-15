@@ -189,7 +189,17 @@ button.chip { cursor: pointer; font-family: inherit; }
   display: flex; flex-direction: column; gap: 8px; min-width: 250px; font-size: 13px;
 }
 .theme-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-#themequick { min-width: 40px; }
+.linkbtn {
+  background: none; border: none; padding: 0; cursor: pointer; font-family: inherit;
+  color: var(--link); font-size: 12px; text-decoration: underline;
+}
+.hexin {
+  border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  border-radius: 6px; padding: 3px 8px; font-size: 12px; width: 76px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.hexin:focus { outline: none; border-color: var(--accent); }
+.hexin.bad { border-color: #d93025; }
 .btn {
   border: 1px solid var(--border); background: var(--panel); color: var(--text);
   padding: 5px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
@@ -357,7 +367,8 @@ const SCRIPT = `
   var themeBtn = document.getElementById("thememode");
   var themeMenu = document.getElementById("theme-menu");
   var themeMenuBtn = document.getElementById("theme-menu-btn");
-  var themeQuick = document.getElementById("themequick");
+  var themeAuto = document.getElementById("themeauto");
+  var hexIn = document.getElementById("accent-hex");
   var swatches = [].slice.call(document.querySelectorAll("[data-accent-pick]"));
   var LS_KEY = "btdd-filters-v1";
   var THEME_KEY = "btdd-theme-v1";
@@ -477,15 +488,25 @@ const SCRIPT = `
     themeAccent = accent;
     if (mode === "light" || mode === "dark") document.documentElement.setAttribute("data-theme", mode);
     else document.documentElement.removeAttribute("data-theme");
-    if (accent) document.documentElement.setAttribute("data-accent", accent);
-    else document.documentElement.removeAttribute("data-accent");
-    if (themeBtn) {
-      themeBtn.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+    var custom = accent.charAt(0) === "#";
+    if (custom) {
+      document.documentElement.removeAttribute("data-accent");
+      if (document.documentElement.style) document.documentElement.style.setProperty("--accent", accent);
+    } else {
+      if (document.documentElement.style) document.documentElement.style.removeProperty("--accent");
+      if (accent) document.documentElement.setAttribute("data-accent", accent);
+      else document.documentElement.removeAttribute("data-accent");
     }
-    updateQuickIcon();
+    updateModeBtn();
+    if (themeAuto) themeAuto.hidden = mode === "auto";
     swatches.forEach(function (s) {
       s.classList.toggle("on", s.getAttribute("data-accent-pick") === accent);
     });
+    if (hexIn) {
+      var want = custom ? accent : "";
+      if (hexIn.value !== want) hexIn.value = want;
+      hexIn.classList.toggle("bad", false);
+    }
     if (save) {
       try { localStorage.setItem(THEME_KEY, JSON.stringify({ mode: mode, accent: accent })); } catch (e) {}
     }
@@ -500,12 +521,11 @@ const SCRIPT = `
     return themeMode;
   }
 
-  function updateQuickIcon() {
-    if (!themeQuick) return;
+  function updateModeBtn() {
+    if (!themeBtn) return;
     var eff = effectiveMode();
-    var target = eff === "dark" ? "light" : "dark";
-    themeQuick.textContent = eff === "dark" ? "☀️" : "🌙";
-    themeQuick.title = "Switch to " + target + " mode";
+    themeBtn.textContent = eff === "dark" ? "🌙 Dark" : "☀️ Light";
+    themeBtn.title = "Switch to " + (eff === "dark" ? "light" : "dark") + " mode";
   }
 
   function restoreTheme() {
@@ -516,9 +536,8 @@ const SCRIPT = `
     applyTheme(mode, accent, false);
   }
 
-  function cycleTheme() {
-    var next = themeMode === "auto" ? "light" : themeMode === "light" ? "dark" : "auto";
-    applyTheme(next, themeAccent, true);
+  function toggleTheme() {
+    applyTheme(effectiveMode() === "dark" ? "light" : "dark", themeAccent, true);
   }
 
   function feedQuery() {
@@ -596,10 +615,27 @@ const SCRIPT = `
     });
   });
   if (sortSel) sortSel.addEventListener("change", onChange);
-  if (themeBtn) themeBtn.addEventListener("click", cycleTheme);
-  if (themeQuick) {
-    themeQuick.addEventListener("click", function () {
-      applyTheme(effectiveMode() === "dark" ? "light" : "dark", themeAccent, true);
+  if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
+  if (themeAuto) {
+    themeAuto.addEventListener("click", function () {
+      applyTheme("auto", themeAccent, true);
+    });
+  }
+  if (hexIn) {
+    hexIn.addEventListener("input", function () {
+      var v = hexIn.value.trim().toLowerCase();
+      if (!v) { hexIn.classList.toggle("bad", false); return; }
+      if (v.charAt(0) !== "#") v = "#" + v;
+      if (/^#[0-9a-f]{3}$/.test(v)) {
+        v = "#" + v.charAt(1) + v.charAt(1) + v.charAt(2) + v.charAt(2) + v.charAt(3) + v.charAt(3);
+      }
+      if (/^#[0-9a-f]{6}$/.test(v)) {
+        if (hexIn.value !== v) hexIn.value = v;
+        hexIn.classList.toggle("bad", false);
+        applyTheme(themeMode, v, true);
+      } else {
+        hexIn.classList.toggle("bad", true);
+      }
     });
   }
   if (themeMenuBtn && themeMenu) {
@@ -618,7 +654,7 @@ const SCRIPT = `
   });
   try {
     var mq = window.matchMedia("(prefers-color-scheme: dark)");
-    var onScheme = function () { if (themeMode === "auto") updateQuickIcon(); };
+    var onScheme = function () { if (themeMode === "auto") updateModeBtn(); };
     if (mq.addEventListener) mq.addEventListener("change", onScheme);
     else if (mq.addListener) mq.addListener(onScheme);
   } catch (e) {}
@@ -738,8 +774,8 @@ ${eventsTable(pastAll, today, term, false, "past-body")}
     <div class="theme-menu" id="theme-menu" hidden>
   <div class="theme-row">
     <span class="flabel">Mode</span>
-    <button class="btn" type="button" id="thememode" data-themecycle>Auto</button>
-    <button class="btn" type="button" id="themequick" data-themequick title="Switch to dark mode" aria-label="Switch between light and dark">🌙</button>
+    <button class="btn" type="button" id="thememode" title="Switch to light mode">☀️ Light</button>
+    <button class="linkbtn" type="button" id="themeauto" hidden>Follow system</button>
   </div>
   <div class="theme-row">
     <span class="flabel">Accent</span>
@@ -748,8 +784,9 @@ ${eventsTable(pastAll, today, term, false, "past-body")}
     <button class="swatch" type="button" data-accent-pick="green" title="Green" aria-label="Green accent" style="background:#0f7a3d"></button>
     <button class="swatch" type="button" data-accent-pick="violet" title="Violet" aria-label="Violet accent" style="background:#6d28d9"></button>
     <button class="swatch" type="button" data-accent-pick="pink" title="Pink" aria-label="Pink accent" style="background:#be185d"></button>
+    <input class="hexin" id="accent-hex" type="text" placeholder="#hex" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Custom accent colour as hex code">
   </div>
-  <p class="hint" style="margin: 0;">Saved automatically on this browser.</p>
+  <p class="hint" style="margin: 0;">Saved automatically on this browser. A custom hex colour applies the same shade in light and dark.</p>
   </div>
   </div>
 </div>
