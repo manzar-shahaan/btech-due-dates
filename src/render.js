@@ -253,12 +253,13 @@ blockquote {
   border-radius: 6px; background: var(--panel); color: var(--muted); font-size: 0.95em;
 }
 blockquote p { margin: 0.3em 0; }
-/* Sticky column headers at every width. A table wider than the viewport
-   widens its wrap (min-width: max-content) and the whole page pans
-   horizontally instead — a per-table overflow-x scroller would trap
-   position:sticky, so the wrap must not be a scroll container. */
+/* Sticky column headers at every width. A table whose narrowest cells
+   (nowrap dates, course codes) can't fit the viewport widens its wrap
+   (min-width: min-content — NOT max-content, which would stop column
+   text wrapping on desktop) and the whole page pans horizontally; a
+   per-table overflow-x scroller would trap position:sticky. */
 .table-wrap {
-  overflow-x: visible; min-width: max-content; max-width: 100%;
+  overflow-x: visible; min-width: min-content; max-width: 100%;
   margin: 1em 0; border: 1px solid var(--border);
   border-radius: 8px; background: var(--panel);
 }
