@@ -253,23 +253,30 @@ blockquote {
   border-radius: 6px; background: var(--panel); color: var(--muted); font-size: 0.95em;
 }
 blockquote p { margin: 0.3em 0; }
+/* Sticky column headers at every width. A table wider than the viewport
+   widens its wrap (min-width: max-content) and the whole page pans
+   horizontally instead — a per-table overflow-x scroller would trap
+   position:sticky, so the wrap must not be a scroll container. */
 .table-wrap {
-  overflow-x: auto; margin: 1em 0; border: 1px solid var(--border);
+  overflow-x: visible; min-width: max-content; max-width: 100%;
+  margin: 1em 0; border: 1px solid var(--border);
   border-radius: 8px; background: var(--panel);
 }
 table { border-collapse: collapse; width: 100%; font-size: 0.92em; }
-th { text-align: left; background: var(--th-bg); padding: 8px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-/* Sticky column headers — only where the table doesn't need its own
-   horizontal scroller (an overflow-x ancestor traps position:sticky). */
-@media (min-width: 960px) {
-  .table-wrap { overflow-x: visible; }
-  th { position: sticky; top: 0; z-index: 2; }
-  th:first-child { border-top-left-radius: 7px; }
-  th:last-child { border-top-right-radius: 7px; }
+th {
+  text-align: left; background: var(--th-bg); padding: 8px 12px;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+  position: sticky; top: 0; z-index: 2;
 }
+th:first-child { border-top-left-radius: 7px; }
+th:last-child { border-top-right-radius: 7px; }
 td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-tbody tr:nth-child(even) { background: var(--zebra); }
+/* overflow is visible on the wrap now, so row backgrounds need their own
+   corner rounding to stay inside the wrap's rounded border. */
+tbody tr:nth-child(even) td { background: var(--zebra); }
 tbody tr:last-child td { border-bottom: none; }
+tbody tr:last-child td:first-child { border-bottom-left-radius: 7px; }
+tbody tr:last-child td:last-child { border-bottom-right-radius: 7px; }
 tr.urgent td:first-child { border-left: 3px solid var(--accent); }
 .due { white-space: nowrap; }
 .count {
