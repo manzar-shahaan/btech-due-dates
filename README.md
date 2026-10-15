@@ -65,7 +65,7 @@ wanted).
 
 | Route | Response |
 |---|---|
-| `/` | Dynamic HTML page: upcoming items first with countdowns ("today" = Ottawa time), stale rows auto-filed into a collapsed Past section, calendar buttons. **Course filter chips + sorting (date / course / weight) below the header** — the choice is remembered per browser (localStorage) and mirrored in the URL (`?courses=…`) so filtered views can be shared |
+| `/` | Dynamic HTML page: upcoming items first with countdowns ("today" = Ottawa time), stale rows auto-filed into a collapsed Past section, calendar buttons. **Course filter chips + sorting (date / course / weight) below the header** — the choice is remembered per browser (localStorage) and mirrored in the URL (`?courses=…`) so filtered views can be shared; a floating notice shows while courses are excluded. **Theme controls**: Auto/Light/Dark mode + accent color. **Sticky column headers** on wide screens (≥960px; narrow screens keep horizontal table scrolling, which is incompatible with sticky) |
 | `/raw` (alias `/due-dates.md`) | Raw markdown |
 | `/calendar.ics` | iCalendar feed of every dated upcoming item — subscribe (Apple/Outlook) or import (Google). `?id=<event>` returns a single event; `?download=1` forces a download; **`?courses=CST3104,MGT4701` whitelists courses** (for classmates not taking every course — the "Add to calendar" modal builds this URL automatically from the page's enabled courses) |
 | `/health` | Plain-text liveness check (`ok`) |

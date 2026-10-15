@@ -145,13 +145,26 @@ const STYLES = `
   --border: #d8dde2; --accent: #b35400; --link: #0b57cf; --th-bg: #eaeef1;
   --zebra: rgba(0, 0, 0, 0.035);
 }
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+html[data-theme="dark"] {
+  --bg: #101214; --panel: #181a1d; --text: #e6e8ea; --muted: #9aa1a8;
+  --border: #2c3034; --accent: #ff9f45; --link: #7ab3ff; --th-bg: #202428;
+  --zebra: rgba(255, 255, 255, 0.035);
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  html:not([data-theme="light"]) {
     --bg: #101214; --panel: #181a1d; --text: #e6e8ea; --muted: #9aa1a8;
     --border: #2c3034; --accent: #ff9f45; --link: #7ab3ff; --th-bg: #202428;
     --zebra: rgba(255, 255, 255, 0.035);
   }
 }
+/* Accent overrides (Theme controls). light-dark() resolves against the
+   color-scheme above, so each accent adapts to light/dark automatically. */
+html[data-accent="blue"] { --accent: light-dark(#0b57cf, #7ab3ff); }
+html[data-accent="green"] { --accent: light-dark(#0f7a3d, #4ade80); }
+html[data-accent="violet"] { --accent: light-dark(#6d28d9, #a78bfa); }
+html[data-accent="pink"] { --accent: light-dark(#be185d, #f472b6); }
 * { box-sizing: border-box; }
 body {
   margin: 0; background: var(--bg); color: var(--text);
@@ -194,6 +207,18 @@ body {
   border: 1px solid var(--border); background: var(--panel); color: var(--text);
   border-radius: 8px; padding: 4px 8px; font-size: 13px; font-family: inherit;
 }
+.swatch {
+  width: 22px; height: 22px; border-radius: 999px; cursor: pointer; padding: 0;
+  border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--border); font-family: inherit;
+}
+.swatch.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
+.filter-note {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; z-index: 8;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
+  padding: 6px 8px 6px 14px; font-size: 13px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  color: var(--text); max-width: calc(100vw - 24px);
+}
 h1 { font-size: 1.55rem; line-height: 1.3; margin: 1.1em 0 0.6em; }
 h2 { font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin: 2.2em 0 0.8em; }
 h3 { font-size: 1.02rem; margin: 1.6em 0 0.5em; }
@@ -210,6 +235,14 @@ blockquote p { margin: 0.3em 0; }
 }
 table { border-collapse: collapse; width: 100%; font-size: 0.92em; }
 th { text-align: left; background: var(--th-bg); padding: 8px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+/* Sticky column headers — only where the table doesn't need its own
+   horizontal scroller (an overflow-x ancestor traps position:sticky). */
+@media (min-width: 960px) {
+  .table-wrap { overflow-x: visible; }
+  th { position: sticky; top: 0; z-index: 2; }
+  th:first-child { border-top-left-radius: 7px; }
+  th:last-child { border-top-right-radius: 7px; }
+}
 td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
 tbody tr:nth-child(even) { background: var(--zebra); }
 tbody tr:last-child td { border-bottom: none; }
@@ -260,7 +293,14 @@ const SCRIPT = `
   var countEl = document.getElementById("upcoming-count");
   var pastCountEl = document.getElementById("past-count");
   var emptyEl = document.getElementById("filter-empty");
+  var noteEl = document.getElementById("filter-note");
+  var noteText = document.getElementById("filter-note-text");
+  var themeBtn = document.getElementById("thememode");
+  var swatches = [].slice.call(document.querySelectorAll("[data-accent-pick]"));
   var LS_KEY = "btdd-filters-v1";
+  var THEME_KEY = "btdd-theme-v1";
+  var themeMode = "auto";
+  var themeAccent = "";
   var ALL = [];
   var enabled = {};
   chips.forEach(function (c) {
@@ -321,6 +361,13 @@ const SCRIPT = `
     if (pastCountEl && pb) pastCountEl.textContent = String(visibleRows(pb));
     try { localStorage.setItem(LS_KEY, JSON.stringify({ courses: enabledList(), sort: sortSel.value })); } catch (e) {}
     var on = enabledList();
+    if (noteEl) {
+      var excluded = ALL.length - on.length;
+      if (noteText) {
+        noteText.textContent = excluded + (excluded === 1 ? " course" : " courses") + " excluded from view";
+      }
+      noteEl.hidden = excluded === 0;
+    }
     // Manual query string so commas stay readable (URLSearchParams would %2C them).
     var qs = on.length && on.length !== ALL.length ? "?courses=" + on.join(",") : "";
     history.replaceState(null, "", location.pathname + qs + location.hash);
@@ -361,6 +408,37 @@ const SCRIPT = `
   function onChange() {
     applyFilters();
     sortTables();
+  }
+
+  function applyTheme(mode, accent, save) {
+    themeMode = mode;
+    themeAccent = accent;
+    if (mode === "light" || mode === "dark") document.documentElement.setAttribute("data-theme", mode);
+    else document.documentElement.removeAttribute("data-theme");
+    if (accent) document.documentElement.setAttribute("data-accent", accent);
+    else document.documentElement.removeAttribute("data-accent");
+    if (themeBtn) {
+      themeBtn.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+    }
+    swatches.forEach(function (s) {
+      s.classList.toggle("on", s.getAttribute("data-accent-pick") === accent);
+    });
+    if (save) {
+      try { localStorage.setItem(THEME_KEY, JSON.stringify({ mode: mode, accent: accent })); } catch (e) {}
+    }
+  }
+
+  function restoreTheme() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(THEME_KEY) || "null"); } catch (e) { saved = null; }
+    var mode = saved && (saved.mode === "light" || saved.mode === "dark") ? saved.mode : "auto";
+    var accent = saved && typeof saved.accent === "string" ? saved.accent : "";
+    applyTheme(mode, accent, false);
+  }
+
+  function cycleTheme() {
+    var next = themeMode === "auto" ? "light" : themeMode === "light" ? "dark" : "auto";
+    applyTheme(next, themeAccent, true);
   }
 
   function feedQuery() {
@@ -438,7 +516,20 @@ const SCRIPT = `
     });
   });
   if (sortSel) sortSel.addEventListener("change", onChange);
+  if (themeBtn) themeBtn.addEventListener("click", cycleTheme);
+  swatches.forEach(function (s) {
+    s.addEventListener("click", function () {
+      applyTheme(themeMode, s.getAttribute("data-accent-pick"), true);
+    });
+  });
+  document.querySelectorAll("[data-showall]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      ALL.forEach(function (c) { enabled[c] = true; });
+      onChange();
+    });
+  });
 
+  restoreTheme();
   restoreState();
   onChange();
 })();
@@ -493,6 +584,13 @@ ${courses.map((c) => `<button class="fchip on" type="button" data-fcourse="${esc
 <option value="weight-hi">Weight: high → low</option>
 <option value="weight-lo">Weight: low → high</option>
 </select>
+<span class="flabel">Theme</span>
+<button class="btn" type="button" id="thememode" data-themecycle>Auto</button>
+<button class="swatch" type="button" data-accent-pick="" title="Amber (default)" aria-label="Amber accent" style="background:#b35400"></button>
+<button class="swatch" type="button" data-accent-pick="blue" title="Blue" aria-label="Blue accent" style="background:#0b57cf"></button>
+<button class="swatch" type="button" data-accent-pick="green" title="Green" aria-label="Green accent" style="background:#0f7a3d"></button>
+<button class="swatch" type="button" data-accent-pick="violet" title="Violet" aria-label="Violet accent" style="background:#6d28d9"></button>
+<button class="swatch" type="button" data-accent-pick="pink" title="Pink" aria-label="Pink accent" style="background:#be185d"></button>
 </div>`;
 
   const upcomingHtml = `<section id="upcoming">
@@ -547,6 +645,10 @@ ${pastHtml}
 ${wrapTables(mdBlock(parsed.preambleRest))}
 ${othersHtml}
 <footer>Unofficial study aid — Brightspace and official college communications are always authoritative. Dates are Ottawa time (America/Toronto); entries without a time are all-day. Served by a Cloudflare Worker.</footer>
+</div>
+<div class="filter-note" id="filter-note" hidden>
+<span id="filter-note-text">courses excluded from view</span>
+<button class="btn" type="button" data-showall>Show all</button>
 </div>
 ${MODAL}
 <script>${SCRIPT}</script>
