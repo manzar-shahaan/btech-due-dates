@@ -1,6 +1,6 @@
 // Dynamic HTML rendering. The page is rebuilt per request around "today"
 // (America/Toronto): upcoming items first with countdowns, stale rows folded
-// into a collapsed Past section, and calendar buttons everywhere.
+// into a collapsed Past section, and a per-event ⋮ report menu everywhere.
 //
 // Course filtering + sorting run client-side: every event row carries
 // data-course / data-orig / data-wt attributes, and inline JS toggles
@@ -9,7 +9,6 @@
 // server-side ?courses= whitelist on /calendar.ics.
 
 import { marked } from "marked";
-import { eventUid } from "./ics.js";
 
 marked.use({ gfm: true, async: false });
 
@@ -89,15 +88,29 @@ function weightValue(wt) {
   return m ? m[0] : "";
 }
 
+/** Plain text for the per-event "report incorrect" copy — strips markdown
+ *  links/emphasis so what lands on the clipboard reads like a line of the
+ *  source file. */
+function reportText(e) {
+  const bits = [];
+  if (e.course && e.course !== "—") bits.push(e.course);
+  if (e.item) bits.push(stripMd(e.item));
+  if (e.due) bits.push("due " + stripMd(e.due));
+  return bits.join(" — ");
+}
+
+function stripMd(s) {
+  return String(s || "")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/[*_`~]/g, "");
+}
+
 function eventRows(events, today, term, withCountdown) {
   return events
     .map((e, i) => {
       const p = e.parsed;
       const days = p ? daysUntil(p.start, today) : null;
       const urgent = withCountdown && days !== null && days <= 3;
-      const cal = p
-        ? `<a class="ical" href="/calendar.ics?id=${eventUid(e, term)}" title="Add this event to your calendar">📅</a>`
-        : "";
       return [
         `<tr${urgent ? ' class="urgent"' : ""} data-course="${escapeHtml(e.course)}" data-orig="${i}" data-wt="${weightValue(e.wt)}">`,
         `<td class="due">${inlineMd(e.due)}${withCountdown && p ? countdown(days) : ""}</td>`,
@@ -105,7 +118,7 @@ function eventRows(events, today, term, withCountdown) {
         `<td>${inlineMd(e.item)}</td>`,
         `<td class="wt">${inlineMd(e.wt)}</td>`,
         `<td class="notes">${inlineMd(e.notes)}</td>`,
-        `<td class="cal">${cal}</td>`,
+        `<td class="cal"><button class="kebab" type="button" data-report="${escapeHtml(reportText(e))}" aria-label="More options for this item" title="Report an issue with this item">⋮</button></td>`,
         "</tr>",
       ].join("");
     })
@@ -297,8 +310,23 @@ tr.urgent td:first-child { border-left: 3px solid var(--accent); }
 }
 .count.today { background: #d93025; color: #fff; }
 .count.soon { background: var(--accent); color: #fff; }
-.ical { text-decoration: none; font-size: 14px; opacity: 0.5; }
-.ical:hover { opacity: 1; }
+.kebab {
+  border: none; background: none; cursor: pointer; padding: 2px 6px;
+  font-size: 16px; color: var(--muted); opacity: 0.45; font-family: inherit;
+  line-height: 1; border-radius: 6px;
+}
+.kebab:hover { opacity: 1; color: var(--text); }
+.report-menu {
+  position: fixed; z-index: 11; background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  padding: 6px 8px; display: flex; flex-direction: column; min-width: 210px;
+}
+.report-menu a {
+  padding: 8px 10px; text-decoration: none; color: var(--text); font-size: 13px;
+  font-weight: 600; border-radius: 6px;
+}
+.report-menu a:hover { background: var(--th-bg); color: var(--accent); }
+.report-menu .hint { margin: 2px 10px 4px; }
 .muted { color: var(--muted); }
 code { background: var(--th-bg); border-radius: 4px; padding: 2px 6px; font-size: 0.88em; }
 hr { border: none; border-top: 1px solid var(--border); margin: 2.4em 0; }
@@ -670,6 +698,75 @@ const SCRIPT = `
     });
   });
 
+  // Per-event "report incorrect" menu: copies the event text, then opens
+  // the Discord chat (Discord has no deep link that pre-fills a message,
+  // so the event rides along on the clipboard instead).
+  var reportMenu = document.getElementById("report-menu");
+  var reportLink = document.getElementById("report-link");
+  var kebabs = [].slice.call(document.querySelectorAll("[data-report]"));
+  var lastKebab = null;
+
+  function copyReport(text) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        var pr = navigator.clipboard.writeText(text);
+        if (pr && pr.catch) pr.catch(function () {});
+        return;
+      }
+    } catch (e) {}
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (e) {}
+  }
+
+  function openReportMenu(btn) {
+    lastKebab = btn;
+    if (reportLink) reportLink.setAttribute("data-copytext", btn.getAttribute("data-report"));
+    if (!reportMenu) return;
+    reportMenu.hidden = false;
+    var left = 8, top = 8;
+    try {
+      var r = btn.getBoundingClientRect();
+      left = r.left; top = r.bottom + 6;
+      var vw = window.innerWidth || 0;
+      var mw = reportMenu.offsetWidth || 210;
+      if (left + mw > vw - 8) left = Math.max(8, vw - mw - 8);
+    } catch (e) {}
+    reportMenu.style.left = left + "px";
+    reportMenu.style.top = top + "px";
+  }
+
+  kebabs.forEach(function (b) {
+    b.addEventListener("click", function (e) {
+      if (reportMenu && !reportMenu.hidden && lastKebab === b) {
+        reportMenu.hidden = true;
+        return;
+      }
+      openReportMenu(b);
+      if (e && e.stopPropagation) e.stopPropagation();
+    });
+  });
+  if (reportLink) {
+    reportLink.addEventListener("click", function () {
+      copyReport(reportLink.getAttribute("data-copytext") || "");
+      if (reportMenu) reportMenu.hidden = true;
+    });
+  }
+  document.addEventListener("click", function (e) {
+    if (!reportMenu || reportMenu.hidden) return;
+    if (e && e.target && e.target.getAttribute && e.target.getAttribute("data-report") !== null) return;
+    if (reportMenu.contains && reportMenu.contains(e.target)) return;
+    reportMenu.hidden = true;
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e && e.key === "Escape" && reportMenu && !reportMenu.hidden) reportMenu.hidden = true;
+  });
+
   restoreTheme();
   restoreState();
   onChange();
@@ -796,7 +893,11 @@ ${upcomingHtml}
 ${pastHtml}
 ${wrapTables(mdBlock(parsed.preambleRest))}
 ${othersHtml}
-<footer>Unofficial study aid — Brightspace and official college communications are always authoritative. Dates are Ottawa time (America/Toronto); entries without a time are all-day. Served by a Cloudflare Worker.</footer>
+<footer>This is a public copy of my due-date calendar — if you see any errors, please let me know <a href="https://discord.com/users/756577904086745099" target="_blank" rel="noopener" title="Message me on Discord">→</a> Brightspace and official college communications are always authoritative. Dates are Ottawa time (America/Toronto); entries without a time are all-day. Served by a Cloudflare Worker.</footer>
+</div>
+<div class="report-menu" id="report-menu" hidden>
+  <a id="report-link" href="https://discord.com/users/756577904086745099" target="_blank" rel="noopener">⚠️ Report incorrect</a>
+  <p class="hint">The item is copied — paste it into your Discord message.</p>
 </div>
 <div class="filter-note" id="filter-note" hidden>
 <span id="filter-note-text">courses excluded from view</span>

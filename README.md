@@ -65,7 +65,7 @@ wanted).
 
 | Route | Response |
 |---|---|
-| `/` | Dynamic HTML page: upcoming items first with countdowns ("today" = Ottawa time), stale rows auto-filed into a collapsed Past section, calendar buttons. **Course filter chips + sorting (date / course / weight) below the header** — the choice is remembered per browser (localStorage) and mirrored in the URL (`?courses=…`) so filtered views can be shared; a floating notice shows while courses are excluded. **🎨 Theme menu** in the top bar: a single light/dark toggle (sun/moon icon + word; follows the system scheme until you pick one — a small “Follow system” link re-enables that) plus accent colour via swatches or a custom hex code input (persisted per browser via localStorage — no cookies). **Sticky column headers** at every width (tables wider than the viewport widen the page, which pans horizontally; a per-table scroller would trap sticky) |
+| `/` | Dynamic HTML page: upcoming items first with countdowns ("today" = Ottawa time), stale rows auto-filed into a collapsed Past section, per-event ⋮ report menus. **Course filter chips + sorting (date / course / weight) below the header** — the choice is remembered per browser (localStorage) and mirrored in the URL (`?courses=…`) so filtered views can be shared; a floating notice shows while courses are excluded. **🎨 Theme menu** in the top bar: a single light/dark toggle (sun/moon icon + word; follows the system scheme until you pick one — a small “Follow system” link re-enables that) plus accent colour via swatches or a custom hex code input (persisted per browser via localStorage — no cookies). **Sticky column headers** at every width (tables wider than the viewport widen the page, which pans horizontally; a per-table scroller would trap sticky) |
 | `/raw` (alias `/due-dates.md`) | Raw markdown |
 | `/calendar.ics` | iCalendar feed of every dated upcoming item — subscribe (Apple/Outlook) or import (Google). `?id=<event>` returns a single event; `?download=1` forces a download; **`?courses=CST3104,MGT4701` whitelists courses** (for classmates not taking every course — the "Add to calendar" modal builds this URL automatically from the page's enabled courses) |
 | `/health` | Plain-text liveness check (`ok`) |
@@ -92,7 +92,10 @@ it takes to update the live site.
 - Feed details for client compatibility: stable content-hashed UIDs (Google
   keys updates on UID), `TRANSP:TRANSPARENT` per event, all-day `VALUE=DATE`
   for date-only entries, and ETag/304 support for conditional re-fetches.
-- Each upcoming row has a **📅 button** that downloads just that event.
+- Each event row has a **⋮ menu** — "Report incorrect" copies that exact item
+  (course — item — due date) to the clipboard and opens my Discord chat, so
+  classmates can paste it with their correction. Discord has no deep link
+  that pre-fills a message, which is why the event rides on the clipboard.
 - **Course-filtered feeds**: `?courses=` accepts a comma-separated whitelist
   (case-insensitive; unknown codes are ignored; an empty/invalid param means
   all courses). The ETag varies per filter set, so conditional fetches still
