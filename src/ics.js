@@ -98,22 +98,27 @@ function eventBlock(e, term, stamp) {
   const lines = ["BEGIN:VEVENT", `UID:${eventUid(e, term)}`, `DTSTAMP:${stamp}`];
 
   if (p.time) {
-    // Timed: a 30-minute block at the due time, local Toronto time.
+    // Timed: a 30-minute block at the due time, local Toronto time — but
+    // never let the block cross midnight, or calendar apps render the
+    // event on the *next* day too. Late-night blocks get clamped to end
+    // at 23:59:59 on the due day.
     const [h, m] = p.time.split(":").map(Number);
     let eh = h;
     let em = m + 30;
+    let es = "00";
     let endDate = p.start;
     if (em >= 60) {
       em -= 60;
       eh += 1;
     }
     if (eh >= 24) {
-      eh -= 24;
-      endDate = nextDay(p.start);
+      eh = 23;
+      em = 59;
+      es = "59";
     }
     lines.push(`DTSTART;TZID=America/Toronto:${compactDate(p.start)}T${p.time.replace(":", "")}00`);
     lines.push(
-      `DTEND;TZID=America/Toronto:${compactDate(endDate)}T${String(eh).padStart(2, "0")}${String(em).padStart(2, "0")}00`
+      `DTEND;TZID=America/Toronto:${compactDate(endDate)}T${String(eh).padStart(2, "0")}${String(em).padStart(2, "0")}${es}`
     );
   } else {
     // Date-only (or range): all-day event; DTEND is exclusive.
