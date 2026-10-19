@@ -50,7 +50,6 @@ Last updated: Oct 18, 2026
 | Fri Oct 16 | CST3104 | Week 5 Quiz | 1.875% | Window Oct 12–16 |
 | Sun Oct 18 | CST3106 | Lab 6 – Yatzy Game JS | 2% | |
 | Sun Oct 18 | ESC4300 | Quiz 2 (Ch. 4) | 5% | Window Oct 12–18 (Thanksgiving — video posted, no live class) |
-| **Mon Oct 19** | CST3104 | **Midterm** | 10% | Week 7, during Mon class |
 | **Mon Oct 19** | ESC4300 | **Midterm Exam** | 25% | Week of Oct 19 per CSI |
 | **Mon Oct 19, 11:59 PM** | CST3107 | **Group Assignment 1** – OS comparison report | **22%** (report 20 + presentation 2) | Demo in class Oct 20 (week 7) |
 | Tue Oct 20 | CST3105 | **Quiz 1** | 15% | Week 7 per CSI |
@@ -59,6 +58,7 @@ Last updated: Oct 18, 2026
 | Oct 26–30 | — | *Reading week (all courses, no classes)* | — | ESC4300 no class Oct 26; CST3105/3107 wk8 Oct 27; CST3106 wk8 Oct 28; MGT4701 wk8 Oct 29 |
 | Sun Nov 1 | CST3106 | Lab 7 – Migrate dice module to client-server | 1% | |
 | Sun Nov 1 | CST3106 | **Assignment 1 – Yatzy Game JS** | 10% | |
+| **Mon Nov 2** | CST3104 | **Midterm** | 10% | Week 9, during Mon class |
 | Mon Nov 2 | CST3104 | Lab 5 | 3.125% | Labs due Mondays; none Oct 19 (midterm) or Oct 26 (reading week) |
 | Sun Nov 8, 12:00 PM | CST3105 | **Assignment 1** | 15% | Shifted from outline's week 6; group submission per Brightspace |
 | Sun Nov 8 | CST3106 | Lab 8 – Creating a Dice Rolling Animation with jQuery | 2% | Older course docs call this "JSON-based Web API" |
