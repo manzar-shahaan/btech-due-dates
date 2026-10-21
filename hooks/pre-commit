@@ -1,0 +1,49 @@
+#!/bin/sh
+# Auto-stamp the "last updated" fields with the current Ottawa time before
+# every commit (deploy = push to main, so commit time == deploy time):
+#
+#   due-dates.md  ->  Last updated: Oct 21, 2026
+#   semester.yml  ->  updated: "2026-10-21 18:24"
+#
+# Skips re-stamping when the staged diff is nothing but stamp lines, so
+# re-commits/amends don't churn the stamps. Bypass with `git commit --no-verify`.
+#
+# Install (after a fresh clone):
+#   cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e
+
+repo="$(git rev-parse --show-toplevel)"
+cd "$repo"
+
+# Nothing staged -> nothing to stamp.
+git diff --cached --quiet && exit 0
+
+# Skip when the staged changes are only stamp lines (in the stamp files or
+# nowhere else), so stamp-only commits don't loop.
+other="$(git diff --cached -U0 -- . ':(exclude)due-dates.md' ':(exclude)semester.yml' \
+  | grep -E '^[+-][^+-]' || true)"
+stampfile_nonstamp="$(git diff --cached -U0 -- due-dates.md semester.yml \
+  | grep -E '^[+-][^+-]' | grep -viE '^[+-](last updated:|updated:)' || true)"
+if [ -z "$other" ] && [ -z "$stampfile_nonstamp" ]; then
+  exit 0
+fi
+
+stamp="$(LC_ALL=C TZ=America/Toronto date '+%Y-%m-%d %H:%M')"
+day="$(LC_ALL=C TZ=America/Toronto date '+%d')"
+pretty="$(LC_ALL=C TZ=America/Toronto date '+%b') ${day#0}, $(LC_ALL=C TZ=America/Toronto date '+%Y')"
+
+touched=0
+if [ -f due-dates.md ] && grep -q '^Last updated:' due-dates.md; then
+  perl -pi -e 's{^Last updated: .*}{Last updated: '"$pretty"'}' due-dates.md
+  touched=1
+fi
+if [ -f semester.yml ] && grep -q '^updated:' semester.yml; then
+  perl -pi -e 's{^updated: .*}{updated: "'"$stamp"'"}' semester.yml
+  touched=1
+fi
+
+if [ "$touched" = 1 ]; then
+  git add -- due-dates.md semester.yml
+fi
+exit 0

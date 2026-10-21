@@ -10,10 +10,10 @@ push to `main`.
 - `due-dates.md` — **always the current semester** (sanitized public copy).
   The Worker bundles this file at deploy time and serves it as the live page.
 - `semester.yml` — metadata for the site: term label, last-updated stamp,
-  course list. Update `updated:` every time you push content changes.
-  Include the time (no seconds, quoted) — e.g. `updated: "2026-10-14 21:08"` —
-  shown on the page as "Oct 14, 2026, 9:08 PM ET". Date-only (`2026-10-14`)
-  also still works.
+  course list. `updated:` is rewritten automatically by the `pre-commit` hook
+  (see Weekly update workflow) — date **and** time, e.g.
+  `updated: "2026-10-14 21:08"` (Ottawa time; no seconds) — shown on the page
+  as "Oct 14, 2026, 9:08 PM ET". Date-only (`2026-10-14`) also still works.
 - `src/` — the Cloudflare Worker. `due-dates.md` is the **single source of
   truth**: one parser (`src/parse.js`) feeds both the dynamic HTML page
   (`src/render.js`) and the subscribable calendar feed (`src/ics.js`). Routes
@@ -31,9 +31,12 @@ push to `main`.
 1. Edit the **master** (private) file in the Semesters repo:
    `_Active/<TERM>/due_dates.md` — that copy may contain personal statuses.
 2. Copy it here as `due-dates.md`, **sanitized** (see Privacy rules below).
-3. Update `updated:` in `semester.yml` — date **and** time, e.g.
-   `updated: "2026-10-14 21:08"` (your local Ottawa time; no seconds).
-4. Commit and push — Workers Builds rebuilds and redeploys the site
+3. Commit and push — a `pre-commit` hook (see `hooks/pre-commit`) automatically
+   stamps `updated:` in `semester.yml` (date **and** time, Ottawa time, e.g.
+   `updated: "2026-10-14 21:08"`) and `Last updated:` in `due-dates.md`, so the
+   stamps always reflect the commit/push moment. After a fresh clone, install it:
+   `cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit`.
+4. Workers Builds rebuilds and redeploys the site
    automatically (usually live within a minute or two); classmates with a
    subscribed calendar see the change on their app's next refresh.
 
@@ -42,7 +45,8 @@ push to `main`.
 1. `mkdir archive && git mv due-dates.md archive/<TERM>.md` (e.g.
    `archive/2026-Fall.md`), commit.
 2. Create the new term's sanitized `due-dates.md` from the new term's master.
-3. Update `term:`, `title:`, `courses:`, `updated:` (date + time) in `semester.yml`.
+3. Update `term:`, `title:`, `courses:` in `semester.yml` (the hook refreshes
+   `updated:` at commit).
 4. Commit and push.
 
 ## Privacy rules (before every push)

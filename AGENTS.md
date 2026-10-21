@@ -5,4 +5,4 @@
 - Sanity check before pushing (optional): `npm run check` (dry-run build).
 - Git commands run from the Mac host (this folder is a Parallels share), not from inside the Linux VM.
 - After every change/implementation in this repo, always give the student the ready-to-paste `git add` / `git commit -m` / `git push` commands for the Mac host.
-- Before showing those git commands, update the last-updated stamps: `updated:` in `semester.yml` (current Ottawa date+time, e.g. `updated: "2026-10-18 11:07"`) and the `Last updated:` line in `due-dates.md`. There is no auto-stamp on deploy, so this must be done manually every push.
+- Last-updated stamps are automatic: a `pre-commit` git hook (source: `hooks/pre-commit`, installed at `.git/hooks/pre-commit`) rewrites `updated:` in `semester.yml` and `Last updated:` in `due-dates.md` with the current Ottawa time on every commit, and `git add`s them into the commit. No manual stamping needed before pushes. Caveats: it only runs when using real git commits (not `--no-verify`); after a fresh clone, reinstall with `cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit`.
