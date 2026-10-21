@@ -55,7 +55,6 @@ Last updated: Oct 18, 2026
 | Tue Oct 20 | CST3105 | **Quiz 1** | 15% | Week 7 per CSI |
 | Thu Oct 22 | MGT4701 | **Midterm Exam** (incl. Excel) | 25% | Week 7 |
 | Fri Oct 23 | CST3104 | Week 6 Quiz | 1.875% | Window Oct 19–23 |
-| Oct 26–30 | — | *Reading week (all courses, no classes)* | — | ESC4300 no class Oct 26; CST3105/3107 wk8 Oct 27; CST3106 wk8 Oct 28; MGT4701 wk8 Oct 29 |
 | Sun Nov 1 | CST3106 | Lab 7 – Migrate dice module to client-server | 1% | |
 | Sun Nov 1 | CST3106 | **Assignment 1 – Yatzy Game JS** | 10% | |
 | **Mon Nov 2** | CST3104 | **Midterm** | 10% | Week 9, during Mon class |
