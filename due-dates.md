@@ -66,9 +66,9 @@ Last updated: Nov 4, 2026
 | Tue Nov 10 | CST3107 | Quiz 2 | 5% | Week 10 |
 | **Sun Nov 15** | CST3106 | **Assignment 2 – Yatzy w/ Node.js & Express** | 12% | |
 | **Sun Nov 15** | CST3106 | **PD#2 – Portfolio + Yatzy Game** | 7% | |
-| Sun Nov 15 | CST3106 | Lab 9 – Test Postman collection | 2% | |
 | Sun Nov 15 | ESC4300 | Quiz 3 (Ch. 12) | 5% | Window Nov 9–15 |
 | Mon Nov 16 | CST3104 | Lab 7 | 3.125% | |
+| Sun Nov 22 | CST3106 | Lab 9 – Test Postman collection | 2% | Moved up a week |
 | Sun Nov 22 | CST3106 | Lab 10 – Hospital Triage design system | 2% | |
 | Mon Nov 23 | CST3104 | Lab 8 | 3.125% | |
 | Tue Nov 24 | CST3107 | Quiz 3 | 5% | Week 12 |
