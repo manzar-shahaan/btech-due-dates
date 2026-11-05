@@ -96,6 +96,8 @@ it takes to update the live site.
 - Feed details for client compatibility: stable content-hashed UIDs (Google
   keys updates on UID), `TRANSP:TRANSPARENT` per event, all-day `VALUE=DATE`
   for date-only entries, and ETag/304 support for conditional re-fetches.
+  Timed entries render in `America/Toronto` — a start–end range becomes a real
+  start/stop event (exams), while a bare time gets a 30-minute block.
 - Each event row has a **⋮ menu** — "Report incorrect" copies that exact item
   (course — item — due date) to the clipboard and opens my Discord chat, so
   classmates can paste it with their correction. Discord has no deep link
@@ -105,7 +107,8 @@ it takes to update the live site.
   all courses). The ETag varies per filter set, so conditional fetches still
   304 correctly per URL.
 - Estimated rows (leading `~`) are prefixed `(est.)` in the feed. Date-only
-  entries become all-day events; timed entries use `America/Toronto`.
+  entries become all-day events; timed entries (with or without an end time)
+  use `America/Toronto`.
 - The feed only ever contains today-and-future items, so subscribed calendars
   self-clean at semester rollover — nothing for classmates to re-add.
 
@@ -114,6 +117,9 @@ it takes to update the live site.
 The **Due** column is parsed, not just displayed. Supported shapes:
 
 - `Sun Oct 11` or `Mon Dec 14, 11:59 PM` — single date, optional time
+- `Mon Dec 14, 4:00–6:00 PM` or `Thu Dec 17, 11:00 AM–1:00 PM` — start–end time
+  block (put the AM/PM on the end time and the start inherits it, or on both;
+  bare 24h times like `14:00–16:30` also work) — becomes a timed calendar event
 - `Oct 26–30` — date range (becomes a multi-day all-day event)
 - leading `~` — estimated date (kept in output, marked `(est.)`)
 - `**bold**` — emphasis only; `(wk N)` suffixes are excluded from date math

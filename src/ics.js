@@ -98,27 +98,37 @@ function eventBlock(e, term, stamp) {
   const lines = ["BEGIN:VEVENT", `UID:${eventUid(e, term)}`, `DTSTAMP:${stamp}`];
 
   if (p.time) {
-    // Timed: a 30-minute block at the due time, local Toronto time — but
-    // never let the block cross midnight, or calendar apps render the
-    // event on the *next* day too. Late-night blocks get clamped to end
-    // at 23:59:59 on the due day.
+    // Timed block in local Toronto time — but never let the block cross
+    // midnight, or calendar apps render the event on the *next* day too.
+    // With an explicit end time ("4:00–6:00 PM") that's the event length;
+    // a bare time ("11:59 PM") gets a 30-minute block, clamped to 23:59:59
+    // on the due day (and to it if the range would cross midnight).
     const [h, m] = p.time.split(":").map(Number);
     let eh = h;
-    let em = m + 30;
+    let em = m;
     let es = "00";
-    let endDate = p.start;
-    if (em >= 60) {
-      em -= 60;
-      eh += 1;
-    }
-    if (eh >= 24) {
-      eh = 23;
-      em = 59;
-      es = "59";
+    if (p.timeEnd) {
+      [eh, em] = p.timeEnd.split(":").map(Number);
+      if (eh * 60 + em <= h * 60 + m) {
+        eh = 23;
+        em = 59;
+        es = "59";
+      }
+    } else {
+      em += 30;
+      if (em >= 60) {
+        em -= 60;
+        eh += 1;
+      }
+      if (eh >= 24) {
+        eh = 23;
+        em = 59;
+        es = "59";
+      }
     }
     lines.push(`DTSTART;TZID=America/Toronto:${compactDate(p.start)}T${p.time.replace(":", "")}00`);
     lines.push(
-      `DTEND;TZID=America/Toronto:${compactDate(endDate)}T${String(eh).padStart(2, "0")}${String(em).padStart(2, "0")}${es}`
+      `DTEND;TZID=America/Toronto:${compactDate(p.start)}T${String(eh).padStart(2, "0")}${String(em).padStart(2, "0")}${es}`
     );
   } else {
     // Date-only (or range): all-day event; DTEND is exclusive.

@@ -69,10 +69,23 @@ function validIso(year, month, day) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+/** 24h "HH:MM" from ("4", "00", "PM")-style parts; 12 AM → 00:00, 12 PM → 12:00. */
+function to24(hStr, mStr, meridiem) {
+  let h = Number(hStr);
+  if (meridiem) {
+    const pm = meridiem.toUpperCase() === "PM";
+    if (h === 12) h = pm ? 12 : 0;
+    else if (pm) h += 12;
+  }
+  return `${String(h).padStart(2, "0")}:${mStr}`;
+}
+
 /**
  * Parse a Due cell. Supported shapes (bold markers and "~" (estimated)
  * prefixes are handled; "(wk N)" annotations are kept aside):
- *   Sun Oct 11 · Mon Dec 14, 11:59 PM · Oct 26–30 · ~Nov 2–27 · ~Tue Nov 24 (wk 12)
+ *   Sun Oct 11 · Mon Dec 14, 11:59 PM · Mon Dec 14, 4:00–6:00 PM ·
+ *   Thu Dec 17, 11:00 AM–1:00 PM · Oct 26–30 · ~Nov 2–27 · ~Tue Nov 24 (wk 12)
+ * Time ranges put the meridiem on the end (start inherits it) or on both.
  * Returns null when the cell has no usable date.
  */
 export function parseDueCell(cell, year) {
@@ -92,12 +105,34 @@ export function parseDueCell(cell, year) {
   }
 
   let time = null;
-  const tm = s.match(/,\s*(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (tm) {
-    let h = Number(tm[1]) % 12;
-    if (tm[3].toUpperCase() === "PM") h += 12;
-    time = `${String(h).padStart(2, "0")}:${tm[2]}`;
-    s = s.slice(0, tm.index).trim();
+  let timeEnd = null;
+
+  // Time range: "4:00–6:00 PM", "11:00 AM–1:00 PM", "14:00–16:30".
+  const rangeTm = s.match(
+    /(?:,|\s)\s*(\d{1,2}):(\d{2})\s*(AM|PM)?\s*[–—-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)?$/i
+  );
+  if (rangeTm) {
+    let startMer = rangeTm[3];
+    const endMer = rangeTm[6];
+    if (!startMer && endMer) {
+      // "4:00–6:00 PM": start inherits the end's meridiem when that keeps
+      // start ≤ end; otherwise it takes the opposite one ("10:00–1:00 PM").
+      const endH = Number(to24(rangeTm[4], "00", endMer).slice(0, 2));
+      const same = Number(to24(rangeTm[1], "00", endMer).slice(0, 2));
+      const other = Number(
+        to24(rangeTm[1], "00", endMer.toUpperCase() === "PM" ? "AM" : "PM").slice(0, 2)
+      );
+      startMer = same <= endH ? endMer : other <= endH ? (endMer.toUpperCase() === "PM" ? "AM" : "PM") : endMer;
+    }
+    time = to24(rangeTm[1], rangeTm[2], startMer);
+    timeEnd = to24(rangeTm[4], rangeTm[5], endMer);
+    s = s.slice(0, rangeTm.index).trim().replace(/,\s*$/, "");
+  } else {
+    const tm = s.match(/(?:,|\s)\s*(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (tm) {
+      time = to24(tm[1], tm[2], tm[3]);
+      s = s.slice(0, tm.index).trim().replace(/,\s*$/, "");
+    }
   }
 
   // Ranges: "Oct 26–30", "Nov 2–27", (or cross-month "Oct 30–Nov 3").
@@ -108,7 +143,7 @@ export function parseDueCell(cell, year) {
     const start = m1 ? validIso(year, m1, Number(range[2])) : null;
     const end = m2 ? validIso(year, m2, Number(range[4])) : null;
     if (start && end && Number(range[4]) >= Number(range[2])) {
-      return { start, end, time: null, est, highlight, wkNote };
+      return { start, end, time, timeEnd, est, highlight, wkNote };
     }
   }
 
@@ -118,7 +153,7 @@ export function parseDueCell(cell, year) {
   if (single) {
     const month = MONTHS[single[1]];
     const start = month ? validIso(year, month, Number(single[2])) : null;
-    if (start) return { start, end: null, time, est, highlight, wkNote };
+    if (start) return { start, end: null, time, timeEnd, est, highlight, wkNote };
   }
 
   return null;

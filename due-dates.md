@@ -86,26 +86,25 @@ Last updated: Nov 5, 2026
 | **Mon Dec 7** | CST3104 | **Final Project demonstration** (in-lab) | 25% | Week 14; late demos not accepted |
 | **Mon Dec 7, 11:59 PM** | ESC4300 | **Group Project Report (65 pts) + Presentation (35 pts)** | 20% total (≈13% + ≈7%) | Both due same night |
 | Thu Dec 10 | MGT4701 | Group Project Presentation | incl. in 20% project | Week 14 |
-| **Sun Dec 13, 11:59 PM** | CST3106 | **Assignment 3 – Hospital Triage App** | 18% | |
-| **Sun Dec 13, 5:00 PM** | CST3106 | **PD#3 – Portfolio + Triage App** | 6% | |
-| Mon Dec 14, 11:59 PM | CST3107 | **Assignment 2 – Linux install/config report** | 10% | Opens Nov 8; outline said week 14 (Dec 8) |
-| ~Tue Dec 15 (wk 15) | CST3105 | **Final Exam** | 30% | (est.) Confirm with official exam timetable |
-| ~Tue Dec 15 (wk 15) | CST3107 | **Final Exam** | 30% | (est.) Confirm with official exam timetable |
-| **Wed Dec 16, 1:00 PM** | CST3106 | **Final Presentation (Final Exam)** | 20% | Slides + talk |
+| Sun Dec 13, 11:59 PM | CST3106 | Assignment 3 – Hospital Triage App | 18% | |
+| Sun Dec 13, 5:00 PM | CST3106 | PD#3 – Portfolio + Triage App | 6% | |
+| Mon Dec 14, 4:00–6:00 PM | CST3106 | Final Exam/Presentation | 20% | Registrar exam timetable |
+| Mon Dec 14, 11:59 PM | CST3107 | Assignment 2 – Linux install/config report | 10% | Opens Nov 8 |
+| Tue Dec 15, 4:30–6:30 PM | CST3107 | **Final Exam** | 30% | Registrar exam timetable |
+| Wed Dec 16, 2:00–4:30 PM | CST3105 | **Final Exam** | 30% | Registrar exam timetable |
+| Thu Dec 17, 11:00 AM–1:00 PM | CST3104 | **Final Exam** | 25% | Registrar exam timetable |
+| Thu Dec 17, 3:30–6:30 PM | ESC4300 | **Final Exam** | 25% | Registrar exam timetable |
+| Sat Dec 19, 10:00 AM–1:00 PM | MGT4701 | **Final Exam** | 35% | Registrar exam timetable |
 
 ## Unscheduled / Ongoing
 
 | Course | Item | Wt | Notes |
 |---|---|---|---|
-| CST3104 | Final Exam | 25% | Exam period, no date yet (not in CSI schedule) |
 | CST3104 | Quizzes 7–8 (2 × 1.875%) | 3.75% total | Due dates not yet posted — excluded from the calendar feed until confirmed |
-| ESC4300 | Final Exam | 25% | Exam period, no date yet (not in CSI schedule) |
-| MGT4701 | Final Exam | 35% | "TBD" (week 15) per CSI |
 | CST3107 | Attendance | 3% | Ongoing all term |
 | CST3107 | Group participation (incl. 2% week-2 activity) | 5% | Ongoing all term |
 | ESC4300 | Activities | 10% bucket | 4 posted so far; more expected weekly to Dec 7 |
 | ESC4300 | Active participation bonus | +5% | Bonus, not counted in 100% |
-| MGT4701 | Excel Labs 1–6 (Sep 17, Sep 24, Oct 8, Oct 22, Nov 19, Nov 26) | 0% | ungraded learning activities |
 
 ---
 
@@ -135,7 +134,7 @@ Last updated: Nov 5, 2026
 - **Assignment 1 shifted ~4 weeks**: outline says week 6 (~Oct 13); Brightspace says **Nov 8, 12:00 PM**. Quiz 1 (outline week 7) is still assumed for Oct 20 — watch for changes.
 - **Assignment 2 (15%, outline week 12 ≈ Nov 24) is not on Brightspace yet** — expect a posted date later (possibly shifted, like Assignment 1).
 - Lab weights assume exactly 6 labs (10% ÷ 6 ≈ 1.67% each); if more are posted, per-lab share dilutes.
-- Final exam: week 15 ≈ Dec 15 per outline, but the registrar's timetable is authoritative.
+- Final exam: **Wed Dec 16, 2:00–4:30 PM** per the registrar's timetable (outline's week 15 ≈ Dec 15 was close).
 
 ### CST3106 (Internet Architecture & Web Dev)
 - Weekly-schedule PDF vs Brightspace due dates (Brightspace wins): Asg1 wk7 (≈Oct 21) → **Nov 1**; Asg2 wk11 (≈Nov 18) → **Nov 15**; Asg3 wk13 (≈Dec 2) → **Dec 13**; PD#2 wk12 (≈Nov 25) → **Nov 15**; PD#3 wk14 (≈Dec 9) → **Dec 13**.
@@ -154,13 +153,13 @@ Last updated: Nov 5, 2026
 - Quiz chapters lag the weekly topic by ~2 weeks — quizzes test prior content, not an error.
 - Activities are a 10% bucket; only 4 of N posted so far. More likely appear weekly — check Brightspace Mondays.
 - Midterm (25%) is Oct 19 — **same day as CST3104's midterm and CST3107's GA1 (22%)**. Heaviest day of the term.
-- Final exam (25%) has no date in the CSI — exam period, TBD.
+- Final exam (25%) has no date in the CSI — registrar's timetable: **Thu Dec 17, 3:30–6:30 PM**.
 
 ### MGT4701 (Adv. Business Stats)
 - The evaluation section says "Assignments (2 × 10% each)" while the guidelines text says "two assignments worth together 10% (5% each)". The schedule and Brightspace support **10% each** — only that reading sums to 100%.
 - Guidelines call them "individual assignments" while the schedule and Brightspace call them "Group Assignments" — confirm submission mode with the professor.
 - GA2 (Nov 26), Group Project (Dec 3), and Presentation (Dec 10) are not yet on Brightspace — dated from CSI.
-- Final exam (35%) is "TBD" — week 15/exam period.
+- Final exam (35%) is "TBD" in the CSI — registrar's timetable: **Sat Dec 19, 10:00 AM–1:00 PM**.
 
 ### Cross-Course Notes
 - **Oct 19–20 (Mon–Tue)**: Mon 19th — CST3104 midterm (10%) + ESC4300 midterm (25%) + CST3107 GA1 due (22%) = 57% of course grades in one day; Tue 20th — CST3105 Quiz 1 (15%) + CST3107 Quiz 1 (5%) + CST3107 GA1 demo, all in class. Heaviest stretch of the term.
@@ -168,4 +167,4 @@ Last updated: Nov 5, 2026
 - **Dec 7 (Mon)**: CST3104 final project demo (25%) + ESC4300 group project report & presentation (20%).
 - **Dec 13 (Sun)**: CST3106 Asg3 (18%) + PD#3 (6%) — 24% of CST3106 in one day.
 - Reading week Oct 26–30 (all six CSIs consistent).
-- CST3105 and CST3107 finals both land in week 15 (≈Dec 15) per their outlines — confirm against the official exam timetable when published.
+- Final exam times on the calendar are from the **official registrar exam timetable** (Dec 14–19); outlines only said "week 15".
