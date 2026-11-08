@@ -2,7 +2,7 @@
 
 > **This is a public copy of my due-date calendar.** If you see any errors, please let me know [→](https://discord.com/users/756577904086745099). Dates are cross-checked against course outlines and Brightspace where possible, but **Brightspace and official college communications are always authoritative**. Not affiliated with or endorsed by Algonquin College.
 
-Last updated: Nov 5, 2026
+Last updated: Nov 7, 2026
 
 **Class times** (for assessments): CST3104 Mon 09:00–13:00 · ESC4300 Mon 14:00–17:00 · CST3105 Tue 13:00–16:00 · CST3107 Tue 16:30–18:30 · CST3106 Wed 16:00–20:00 · MGT4701 Thu 19:00–22:00
 
@@ -64,7 +64,6 @@ Last updated: Nov 5, 2026
 | Sun Nov 8, 12:00 PM | CST3105 | **Assignment 1** | 15% | Shifted from outline's week 6; group submission per Brightspace |
 | Sun Nov 8 | CST3106 | Lab 8 – Creating a Dice Rolling Animation with jQuery | 2% | Older course docs call this "JSON-based Web API" |
 | Mon Nov 9 | CST3104 | Lab 6 | 3.125% | |
-| Tue Nov 10 | CST3107 | Quiz 2 | 5% | Week 10 |
 | **Sun Nov 15** | CST3106 | **Assignment 2 – Yatzy w/ Node.js & Express** | 12% | |
 | **Sun Nov 15** | CST3106 | **PD#2 – Portfolio + Yatzy Game** | 7% | |
 | Sun Nov 15 | ESC4300 | Quiz 3 (Ch. 12) | 5% | Window Nov 9–15 |
@@ -101,6 +100,7 @@ Last updated: Nov 5, 2026
 | Course | Item | Wt | Notes |
 |---|---|---|---|
 | CST3104 | Quizzes 7–8 (2 × 1.875%) | 3.75% total | Due dates not yet posted — excluded from the calendar feed until confirmed |
+| CST3107 | Quiz 2 | 5% | |
 | CST3107 | Attendance | 3% | Ongoing all term |
 | CST3107 | Group participation (incl. 2% week-2 activity) | 5% | Ongoing all term |
 | ESC4300 | Activities | 10% bucket | 4 posted so far; more expected weekly to Dec 7 |
