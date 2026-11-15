@@ -2,7 +2,7 @@
 
 > **This is a public copy of my due-date calendar.** If you see any errors, please let me know [→](https://discord.com/users/756577904086745099). Dates are cross-checked against course outlines and Brightspace where possible, but **Brightspace and official college communications are always authoritative**. Not affiliated with or endorsed by Algonquin College.
 
-Last updated: Nov 14, 2026
+Last updated: Nov 15, 2026
 
 **Class times** (for assessments): CST3104 Mon 09:00–13:00 · ESC4300 Mon 14:00–17:00 · CST3105 Tue 13:00–16:00 · CST3107 Tue 16:30–18:30 · CST3106 Wed 16:00–20:00 · MGT4701 Thu 19:00–22:00
 
@@ -67,7 +67,7 @@ Last updated: Nov 14, 2026
 | **Sun Nov 15** | CST3106 | **Assignment 2 – Yatzy w/ Node.js & Express** | 12% | |
 | **Sun Nov 15** | CST3106 | **PD#2 – Portfolio + Yatzy Game** | 7% | |
 | Sun Nov 15 | ESC4300 | Quiz 3 (Ch. 12) | 5% | Window Nov 9–15 |
-| Mon Nov 16 | CST3104 | Lab 7 | 3.125% | |
+| Mon Nov 23 | CST3104 | Lab 7 | 3.125% | Pushed from Mon Nov 16 — instructions/dropbox not available on Brightspace. Instructor mentioned 2 labs being due together (Lab 7 + Lab 8 on Nov 23) |
 | Fri Nov 20 | CST3104 | Quiz 7 | 1.875% | |
 | Sun Nov 22 | CST3106 | Lab 9 – Test Postman collection | 2% | Moved up a week |
 | Sun Nov 22 | CST3106 | Lab 10 – Hospital Triage design system | 2% | |
