@@ -68,11 +68,10 @@ Last updated: Nov 16, 2026
 | **Sun Nov 15** | CST3106 | **PD#2 – Portfolio + Yatzy Game** | 7% | |
 | Sun Nov 15 | ESC4300 | Quiz 3 (Ch. 12) | 5% | Window Nov 9–15 |
 | Wed Nov 18 | CST3107 | Quiz 2 | 5% | Due by 6:30pm |
-| Mon Nov 23 | CST3104 | Lab 7 | 3.125% | Pushed from Mon Nov 16 — instructions/dropbox not available on Brightspace. Instructor mentioned 2 labs being due together (Lab 7 + Lab 8 on Nov 23) |
+| Mon Nov 23 | CST3104 | Lab 7 | 3.125% | |
 | Fri Nov 20 | CST3104 | Quiz 7 | 1.875% | |
 | Sun Nov 22 | CST3106 | Lab 9 – Test Postman collection | 2% | Moved up a week |
 | Sun Nov 22 | CST3106 | Lab 10 – Hospital Triage design system | 2% | |
-| Mon Nov 23 | CST3104 | Lab 8 | 3.125% | |
 | Tue Nov 24 | CST3107 | Quiz 3 | 5% | Week 12 |
 | ~Tue Nov 24 (wk 12) | CST3105 | **Assignment 2** | 15% | (est.) Not yet on Brightspace |
 | Thu Nov 26 | MGT4701 | **Group Assignment 2** | 10% | Not yet on Brightspace |
@@ -80,6 +79,7 @@ Last updated: Nov 16, 2026
 | Sun Nov 29 | ESC4300 | Quiz 4 | 5% | Window Nov 23–29 |
 | Sun Nov 29 | CST3106 | Lab 11 – Enterprise DB design | 2% | |
 | Sun Nov 29 | ESC4300 | Quiz 4 (Ch. 12) | 5% | Window Nov 23–29 |
+| Mon Nov 30 | CST3104 | Lab 8 | 3.125% | |
 | Tue Dec 1 | CST3105 | **Quiz 2** | 15% | Week 13 |
 | Tue Dec 1 | CST3107 | Quiz 4 | 5% | Week 13 |
 | Thu Dec 3 | MGT4701 | **Group Project due** | 20% | Not yet on Brightspace |
