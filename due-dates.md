@@ -2,7 +2,7 @@
 
 > **This is a public copy of my due-date calendar.** If you see any errors, please let me know [→](https://discord.com/users/756577904086745099). Dates are cross-checked against course outlines and Brightspace where possible, but **Brightspace and official college communications are always authoritative**. Not affiliated with or endorsed by Algonquin College.
 
-Last updated: Nov 16, 2026
+Last updated: Nov 21, 2026
 
 **Class times** (for assessments): CST3104 Mon 09:00–13:00 · ESC4300 Mon 14:00–17:00 · CST3105 Tue 13:00–16:00 · CST3107 Tue 16:30–18:30 · CST3106 Wed 16:00–20:00 · MGT4701 Thu 19:00–22:00
 
@@ -73,8 +73,7 @@ Last updated: Nov 16, 2026
 | Sun Nov 22 | CST3106 | Lab 9 – Test Postman collection | 2% | Moved up a week |
 | Sun Nov 22 | CST3106 | Lab 10 – Hospital Triage design system | 2% | |
 | Tue Nov 24 | CST3107 | Quiz 3 | 5% | Week 12 |
-| ~Tue Nov 24 (wk 12) | CST3105 | **Assignment 2** | 15% | (est.) Not yet on Brightspace |
-| Thu Nov 26 | MGT4701 | **Group Assignment 2** | 10% | Not yet on Brightspace |
+| Thu Nov 26 | MGT4701 | Group Assignment 2 | 10% | In-class assignment |
 | Thu Nov 26 | CST3105 | Lab 5 | 1.67% | |
 | Sun Nov 29 | ESC4300 | Quiz 4 | 5% | Window Nov 23–29 |
 | Sun Nov 29 | CST3106 | Lab 11 – Enterprise DB design | 2% | |
@@ -86,12 +85,13 @@ Last updated: Nov 16, 2026
 | Sun Dec 6 | CST3105 | Lab 6 | 1.67% | |
 | Sun Dec 6 | CST3106 | Lab 12 – APIs w/ enterprise DB systems | 2% | |
 | **Mon Dec 7** | CST3104 | **Final Project demonstration** (in-lab) | 25% | Week 14; late demos not accepted |
-| **Mon Dec 7, 11:59 PM** | ESC4300 | **Group Project Report (65 pts) + Presentation (35 pts)** | 20% total (≈13% + ≈7%) | Both due same night |
+| **Mon Dec 7, 11:59 PM** | ESC4300 | **Group Project Report (65 pts) + Presentation (35 pts)** | 20% total (≈13% + ≈7%) | |
+| Mon Dec 7, 11:59 PM | CST3107 | Assignment 2 – Linux install/config report | 10% | Opens Nov 8 |
 | Thu Dec 10 | MGT4701 | Group Project Presentation | incl. in 20% project | Week 14 |
+| Sat Dec 11 | CST3105 | Assignment 2 | 15% | |
 | Sun Dec 13, 11:59 PM | CST3106 | Assignment 3 – Hospital Triage App | 18% | |
 | Sun Dec 13, 5:00 PM | CST3106 | PD#3 – Portfolio + Triage App | 6% | |
 | Mon Dec 14, 4:00–6:00 PM | CST3106 | Final Exam/Presentation | 20% | Registrar exam timetable |
-| Mon Dec 14, 11:59 PM | CST3107 | Assignment 2 – Linux install/config report | 10% | Opens Nov 8 |
 | Tue Dec 15, 4:30–6:30 PM | CST3107 | **Final Exam** | 30% | Registrar exam timetable |
 | Wed Dec 16, 2:00–4:30 PM | CST3105 | **Final Exam** | 30% | Registrar exam timetable |
 | Thu Dec 17, 11:00 AM–1:00 PM | CST3104 | **Final Exam** | 25% | Registrar exam timetable |
