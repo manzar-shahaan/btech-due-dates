@@ -74,7 +74,6 @@ Last updated: Nov 24, 2026
 | Sun Nov 22 | CST3106 | Lab 10 – Hospital Triage design system | 2% | |
 | Thu Nov 26 | MGT4701 | Group Assignment 2 | 10% | In-class assignment |
 | Thu Nov 26 | CST3105 | Lab 5 | 1.67% | |
-| Sun Nov 29 | ESC4300 | Quiz 4 | 5% | Window Nov 23–29 |
 | Sun Nov 29 | CST3106 | Lab 11 – Enterprise DB design | 2% | |
 | Sun Nov 29 | ESC4300 | Quiz 4 (Ch. 12) | 5% | Window Nov 23–29 |
 | Mon Nov 30 | CST3104 | Lab 8 | 3.125% | |
